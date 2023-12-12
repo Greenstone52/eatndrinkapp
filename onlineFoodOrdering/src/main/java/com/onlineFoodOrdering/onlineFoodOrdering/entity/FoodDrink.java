@@ -11,26 +11,18 @@ import org.hibernate.annotations.OnDeleteAction;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Table(name = "food")
 @Entity
-@Table(name = "order_tbl")
-public class Order {
+public class FoodDrink {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "customer_id")
+    @JoinColumn(name = "menu_id")
     @JsonIgnore
-    private Customer customer;
+    private Menu menu;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "restaurant_id")
-    @JsonIgnore
-    private Restaurant restaurant;
-
-    private Long menuId;
-
-    private Long foodDrinkId;
+    private String name;
 }

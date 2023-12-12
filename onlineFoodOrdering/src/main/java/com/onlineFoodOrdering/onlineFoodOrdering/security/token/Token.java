@@ -1,6 +1,7 @@
-package com.onlineFoodOrdering.onlineFoodOrdering.entity;
+package com.onlineFoodOrdering.onlineFoodOrdering.security.token;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.onlineFoodOrdering.onlineFoodOrdering.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,18 +12,21 @@ import org.hibernate.annotations.OnDeleteAction;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "food")
 @Entity
-public class Food {
+@Table(name = "token")
+public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
     private Long id;
+    @Column(unique = true)
+    private String token;
+    private boolean expired;
+    private boolean revoked;
+    @Enumerated(EnumType.STRING)
+    private TokenType tokenType = TokenType.BEARER;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "menu_id")
     @JsonIgnore
-    private Menu menu;
-
-    private String name;
+    private User user;
 }

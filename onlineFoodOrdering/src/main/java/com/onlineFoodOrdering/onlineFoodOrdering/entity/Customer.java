@@ -38,4 +38,9 @@ public class Customer extends CommonUserKnowledge {
 
     @Transient
     private int totalNumberOfOrder;
+
+    @OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 }

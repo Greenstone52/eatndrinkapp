@@ -21,7 +21,7 @@ public class Menu {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "restaurant_Id")
+    @JoinColumn(name = "restaurantId")
     @JsonIgnore
     private Restaurant restaurant;
 }

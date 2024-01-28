@@ -20,9 +20,24 @@ public class FoodDrink {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "menu_id")
+    @JoinColumn(name = "menuId")
     @JsonIgnore
     private Menu menu;
 
     private String name;
+
+    private String type;
+
+    private double salesPrice;
+    private double costPrice;
+    private double profit;
+
+    public FoodDrink(Menu menu, String name, String type, double salesPrice, double costPrice){
+        this.menu = menu;
+        this.name = name;
+        this.type = type;
+        this.salesPrice = salesPrice;
+        this.costPrice = costPrice;
+        this.profit = salesPrice - costPrice;
+    }
 }

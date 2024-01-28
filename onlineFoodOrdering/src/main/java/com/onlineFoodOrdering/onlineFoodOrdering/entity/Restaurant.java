@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.List;
 
@@ -23,8 +25,8 @@ public class Restaurant {
     private String name;
     private String taxNo;
 
-    @OneToOne(fetch = FetchType.EAGER,orphanRemoval = true)
-    @JoinColumn(name = "address_id")
+    @OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
+    @JoinColumn(name = "addressId")
     @JsonIgnore
     private Address address;
 
@@ -32,4 +34,13 @@ public class Restaurant {
     @JsonIgnore
     private List<Owner> owners;
 
+    //@OneToOne(fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL)
+    //@JoinColumn(name = "ibanNo")
+    //@JsonIgnore
+    //private BankAccount bankAccount;
+
+    private String province;
+    private String district;
+
+    private double balance;
 }

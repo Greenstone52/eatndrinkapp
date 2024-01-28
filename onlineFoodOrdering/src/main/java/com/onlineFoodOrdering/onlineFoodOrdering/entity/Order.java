@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -20,17 +23,19 @@ public class Order {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "customer_id")
+    @JoinColumn(name = "customerId")
     @JsonIgnore
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "restaurant_id")
+    @JoinColumn(name = "restaurantId")
     @JsonIgnore
     private Restaurant restaurant;
 
     private Long menuId;
 
     private Long foodDrinkId;
+
+    private LocalDateTime date = LocalDateTime.now();
 }

@@ -18,6 +18,8 @@ public class Address {
     @Id
     private Long id;
 
+    // Customera göre unique olacak
+    private String addressTitle;
     private String province;
     private String district;
     private String neighborhood;
@@ -27,7 +29,7 @@ public class Address {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "customer_id")
+    @JoinColumn(name = "customerId")
     @JsonIgnore
     private Customer customer;
 }

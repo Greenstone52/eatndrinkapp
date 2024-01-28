@@ -20,21 +20,21 @@ public class Owner extends CommonUserKnowledge {
     @Id
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "bank_account_id")
-    @JsonIgnore
-    private BankAccount bankAccount;
+    //@OneToOne(fetch = FetchType.EAGER)
+    //@JoinColumn(name = "ibanNo")
+    //@JsonIgnore
+    //private BankAccount bankAccount;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
                     name = "owners_restaurants",
-                    joinColumns = @JoinColumn(name = "owner_id"),
-                    inverseJoinColumns = @JoinColumn(name = "restaurant_id")
+                    joinColumns = @JoinColumn(name = "ownerId"),
+                    inverseJoinColumns = @JoinColumn(name = "restaurantId")
     )
     private List<Restaurant> restaurants;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "details_of_user_id")
+    @JoinColumn(name = "detailsOfUserId")
     @JsonIgnore
     private DetailsOfUser detailsOfUser;
 
@@ -43,9 +43,11 @@ public class Owner extends CommonUserKnowledge {
         super.setRole(Role.OWNER);
     }
 
-    @OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
-    private User user;
+    private double balance;
+
+    //@OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
+    //@JoinColumn(name = "userId")
+    //@JsonIgnore
+    //private User user;
 
 }

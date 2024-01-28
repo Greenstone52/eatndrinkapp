@@ -14,6 +14,9 @@ public class BankAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
+
+    @Column(unique = true)
     private String IBAN;
     private String ownerNameAndSurname;
+    private double balance;
 }

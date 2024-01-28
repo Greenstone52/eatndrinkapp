@@ -21,13 +21,13 @@ public class Review {
     private Long id;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "customer_id")
+    @JoinColumn(name = "customerId")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "restaurant_id")
+    @JoinColumn(name = "restaurantId")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Restaurant restaurant;
@@ -38,7 +38,7 @@ public class Review {
     @Column(columnDefinition = "text")
     private String text;
 
-    @Min(value = 0)
+    @Min(value = 1)
     @Max(value = 5)
-    private int point;
+    private short point;
 }

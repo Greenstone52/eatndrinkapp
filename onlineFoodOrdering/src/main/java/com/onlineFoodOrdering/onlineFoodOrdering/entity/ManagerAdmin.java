@@ -19,7 +19,7 @@ public class ManagerAdmin extends CommonUserKnowledge {
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY,orphanRemoval = true)
-    @JoinColumn(name = "details_of_user_id")
+    @JoinColumn(name = "detailsOfUserId")
     @JsonIgnore
     private DetailsOfUser detailsOfUser;
 }

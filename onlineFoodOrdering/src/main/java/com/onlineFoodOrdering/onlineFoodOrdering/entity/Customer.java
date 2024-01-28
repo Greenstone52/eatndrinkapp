@@ -18,13 +18,13 @@ public class Customer extends CommonUserKnowledge {
     @Id
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
-    @JoinColumn(name = "card_id")
-    @JsonIgnore
-    private Card card;
+    //@OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
+    //@JoinColumn(name = "cardId")
+    //@JsonIgnore
+    //private Card card;
 
     @OneToOne(fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL)
-    @JoinColumn(name = "details_of_user_id")
+    @JoinColumn(name = "detailsOfUserId")
     @JsonIgnore
     private DetailsOfUser detailsOfUser;
 
@@ -33,14 +33,14 @@ public class Customer extends CommonUserKnowledge {
         super.setRole(Role.CUSTOMER);
     }
 
-    @Transient
+    @JsonIgnore
     private int totalSpendMoney;
 
-    @Transient
+    @JsonIgnore
     private int totalNumberOfOrder;
 
-    @OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    @JsonIgnore
-    private User user;
+    //@OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
+    //@JoinColumn(name = "userId")
+    //@JsonIgnore
+    //private User user;
 }

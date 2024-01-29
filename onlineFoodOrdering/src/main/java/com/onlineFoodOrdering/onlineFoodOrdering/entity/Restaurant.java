@@ -23,12 +23,14 @@ public class Restaurant {
     private Long id;
 
     private String name;
+
+    @Column(unique = true)
     private String taxNo;
 
-    @OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
-    @JoinColumn(name = "addressId")
-    @JsonIgnore
-    private Address address;
+    //@OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
+    //@JoinColumn(name = "addressId")
+    //@JsonIgnore
+    //private Address address;
 
     @ManyToMany(fetch = FetchType.LAZY,mappedBy = "restaurants")
     @JsonIgnore
@@ -42,5 +44,7 @@ public class Restaurant {
     private String province;
     private String district;
 
-    private double balance;
+    private double netProfit;
+    private double netEndorsement;
+    private String password;
 }

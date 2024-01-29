@@ -26,16 +26,13 @@ public class FoodDrink {
 
     private String name;
 
-    private String type;
-
     private double salesPrice;
     private double costPrice;
     private double profit;
 
-    public FoodDrink(Menu menu, String name, String type, double salesPrice, double costPrice){
+    public FoodDrink(Menu menu, String name, double salesPrice, double costPrice){
         this.menu = menu;
         this.name = name;
-        this.type = type;
         this.salesPrice = salesPrice;
         this.costPrice = costPrice;
         this.profit = salesPrice - costPrice;

@@ -34,7 +34,7 @@ public class Customer extends CommonUserKnowledge {
     }
 
     @JsonIgnore
-    private int totalSpendMoney;
+    private double totalSpendMoney;
 
     @JsonIgnore
     private int totalNumberOfOrder;

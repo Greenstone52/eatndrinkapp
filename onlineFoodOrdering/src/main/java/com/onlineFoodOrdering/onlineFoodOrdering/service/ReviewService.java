@@ -25,29 +25,47 @@ public class ReviewService {
     private OrderRepository orderRepository;
     private CustomerRepository customerRepository;
 
-    public Customer findCustomer(String username){
-        return customerRepository.findCustomerByUsername(username).orElse(null);
+    public Customer findCustomer(Long id){
+        return customerRepository.findById(id).orElse(null);
     }
 
-    public List<ReviewResponse> getAllTheReviewsOfTheCustomer(String username){
-        Customer customer = findCustomer(username);
+    public List<ReviewResponse> getAllTheReviewsOfTheCustomer(Long id){
+        Customer customer = findCustomer(id);
 
         List<Review> reviews = new ArrayList<>();
-        reviews = reviewRepository.findReviewsByCustomerId(customer.getId());
 
-        return reviews.stream().map(review -> new ReviewResponse(review)).collect(Collectors.toList());
+        if(customer == null){
+            return null;
+        }else{
+            reviews = reviewRepository.findReviewsByCustomerId(id);
+            return reviews.stream().map(review -> new ReviewResponse(review)).collect(Collectors.toList());
+        }
 
     }
 
-    public String addAReview(String username, Review review, Long restaurantId){
-        Customer customer = findCustomer(username);
+    public List<ReviewResponse> getAllTheReviewsOfTheRestaurant(Long restaurantId){
         Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
-        Review existReview = reviewRepository.findReviewByCustomerIdAndRestaurantId(customer.getId(),restaurantId).orElse(null);
+
+        List<Review> reviewList = new ArrayList<>();
+
+        if(restaurant == null){
+            return null;
+        }else{
+            reviewList = reviewRepository.findReviewsByRestaurantId(restaurantId);
+            return reviewList.stream().map(review -> new ReviewResponse(review)).collect(Collectors.toList());
+        }
+
+    }
+
+    public String addAReview(Long id, Review review, Long restaurantId){
+        Customer customer = findCustomer(id);
+
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+        Review existReview = reviewRepository.findReviewByCustomerIdAndRestaurantId(id,restaurantId).orElse(null);
 
         // The purpose is that giving permission to a customer make comment a restaurant with a constraint
         // which is that he/she only make a comment for the restaurants which were ordered something by him/her.
-        List<Order> ordersForTheCustomer =  new ArrayList<>();
-        ordersForTheCustomer = orderRepository.findOrdersByCustomerId(customer.getId());
+        List<Order> ordersForTheCustomer =  orderRepository.findOrdersByCustomerId(id);
 
         boolean isReal = false;
 
@@ -61,10 +79,10 @@ public class ReviewService {
         if (isReal) {
             if(existReview == null){
                 if(customer == null && restaurant == null){
-                    return "Please enter an available username and restaurant.";
+                    return "Please enter an available id and restaurant.";
                 }
                 else if(customer == null){
-                    return "Please enter an available username.";
+                    return "Please enter an available id.";
                 }
                 else if(restaurant == null){
                     return "Please enter an available restaurant.";
@@ -84,17 +102,17 @@ public class ReviewService {
                 return "You have already added a review for this restaurant.";
             }
         }else{
-            return "Please make an available request.";
+            return "You cannot make a review for a restaurant you did not order anything.";
         }
 
 
     }
 
-    public void updateReview(String username, Review review,Long restaurantId){
-        Customer customer = findCustomer(username);
+    public String updateReview(Long id, Review review,Long restaurantId){
+        //Customer customer = findCustomer(id);
 
         Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
-        Review oldReview = reviewRepository.findReviewByCustomerIdAndRestaurantId(customer.getId(),restaurantId).orElse(null);
+        Review oldReview = reviewRepository.findReviewByCustomerIdAndRestaurantId(id,restaurantId).orElse(null);
 
         if(oldReview != null){
             oldReview.setRestaurant(review.getRestaurant());
@@ -103,13 +121,18 @@ public class ReviewService {
             oldReview.setPoint(review.getPoint());
 
             reviewRepository.save(oldReview);
+            return "Your review is updated!";
+        }else{
+            return "You have not a review for this restaurant.";
         }
+
+
     }
 
-    public String deleteReview(String username,Long restaurantId){
-        Customer customer = findCustomer(username);
+    public String deleteReview(Long id,Long restaurantId){
+        //Customer customer = findCustomer(id);
 
-        Review review = reviewRepository.findReviewByCustomerIdAndRestaurantId(customer.getId(),restaurantId).orElse(null);
+        Review review = reviewRepository.findReviewByCustomerIdAndRestaurantId(id,restaurantId).orElse(null);
 
         if(review != null){
             reviewRepository.deleteById(review.getId());

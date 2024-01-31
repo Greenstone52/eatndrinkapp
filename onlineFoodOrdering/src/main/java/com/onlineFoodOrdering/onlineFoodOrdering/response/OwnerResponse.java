@@ -12,11 +12,9 @@ import java.util.List;
 public class OwnerResponse {
 
     private DetailsOfUser detailsOfUser;
-    private BankAccount bankAccount;
     private List<Restaurant> restaurants;
     public OwnerResponse(Owner owner){
         this.detailsOfUser = owner.getDetailsOfUser();
-        this.bankAccount = owner.getBankAccount();
         this.restaurants = owner.getRestaurants();
     }
 }

@@ -6,6 +6,7 @@ import com.onlineFoodOrdering.onlineFoodOrdering.repository.OwnerRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.RestaurantRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerDeleteRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerUpdateRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.SetOwnerToARestaurantRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OrderResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OwnerResponse;
 import lombok.AllArgsConstructor;
@@ -33,14 +34,14 @@ public class OwnerService {
     }
 
     public List<OwnerResponse> getTopFiveOwners(){
-        return getOwners(5);
+        return getOwners(5L);
     }
 
     public List<OwnerResponse> getTop10Owners(){
-        return getOwners(10);
+        return getOwners(10L);
     }
 
-    public List<OwnerResponse> getOwners(long N){
+    public List<OwnerResponse> getOwners(Long N){
         if (ownerRepository.count() >= N){
             return getTopNOwners(N);
         }else{
@@ -54,19 +55,19 @@ public class OwnerService {
         ArrayList<Owner> topN = new ArrayList<>();
 
         double maxVal = 0;
-        int index = 0;
+        int index = -1;
 
         for (int j = 0; j < N; j++) {
             for (int i = 0; i < ownerRepository.count(); i++) {
-                if(allOwners.get(i).getBankAccount().getBalance() > maxVal){
-                    maxVal = allOwners.get(i).getBankAccount().getBalance();
+                if(allOwners.get(i).getBalance() > maxVal){
+                    maxVal = allOwners.get(i).getBalance();
                     index = i;
                 }
             }
 
             topN.add(allOwners.get(index));
             allOwners.remove(index);
-            index = 0;
+            index = -1;
         }
 
         return topN.stream().map(owner -> new OwnerResponse(owner)).collect(Collectors.toList());
@@ -75,17 +76,45 @@ public class OwnerService {
 
     public void addOneOwner(Owner owner){
         Owner newOwner = new Owner();
-        newOwner.setBankAccount(owner.getBankAccount());
+        //newOwner.setBankAccount(owner.getBankAccount());
         newOwner.setRestaurants(owner.getRestaurants());
         newOwner.setEmail(owner.getEmail());
         newOwner.setPassword(owner.getPassword());
-        newOwner.setUsername(owner.getUsername());
+        //newOwner.setUsername(owner.getUsername());
         newOwner.setDetailsOfUser(owner.getDetailsOfUser());
+        newOwner.setBalance(owner.getBalance());
+        newOwner.setBirthDate(owner.getBirthDate());
+
         ownerRepository.save(newOwner);
     }
 
-    public String updateOneOwner(OwnerUpdateRequest request){
-        Owner owner = ownerRepository.findOwnerByUsername(request.getUsername()).orElse(null);
+    public String setAnOwnerToARestaurant(Long ownerId, Long restaurantId, SetOwnerToARestaurantRequest request){
+        Owner owner = ownerRepository.findById(ownerId).orElse(null);
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+
+        if(owner.getPassword().equals(request.getOwnerPW()) && restaurant.getPassword().equals(request.getRestaurantPW())){
+
+            boolean isAlreadyPartner = false;
+
+            for (int i = 0; i < restaurant.getOwners().size(); i++) {
+                if(restaurant.getOwners().get(i) == owner){
+                    isAlreadyPartner = true;
+                    return "The owner was already an partner of this restaurant.";
+                }
+            }
+
+            if(!isAlreadyPartner){
+                restaurant.getOwners().add(owner);
+                return "The process was completed successfully.";
+            }
+        }
+
+        return "Incorrent information!";
+
+    }
+
+    public String updateOneOwner(OwnerUpdateRequest request, Long id){
+        Owner owner = ownerRepository.findById(id).orElse(null);
 
         if(owner != null){
 
@@ -100,15 +129,15 @@ public class OwnerService {
                 return "The details of the owner was updated successfully.";
             }
 
-            return "The password entered is wrong";
+            return "The password entered is wrong.";
 
         }else{
             return "There is no such an owner in the system.";
         }
     }
 
-    public String deleteOneOwner(OwnerDeleteRequest request){
-        Owner owner = ownerRepository.findOwnerByUsername(request.getUsername()).orElse(null);
+    public String deleteOneOwner(Long id,OwnerDeleteRequest request){
+        Owner owner = ownerRepository.findById(id).orElse(null);
 
         if(owner != null){
 

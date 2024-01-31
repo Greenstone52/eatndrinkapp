@@ -5,7 +5,9 @@ import com.onlineFoodOrdering.onlineFoodOrdering.baseClass.CommonUserKnowledge;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @AllArgsConstructor
@@ -44,6 +46,9 @@ public class Owner extends CommonUserKnowledge {
     }
 
     private double balance;
+
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    private LocalDate birthDate;
 
     //@OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
     //@JoinColumn(name = "userId")

@@ -7,6 +7,9 @@ import com.onlineFoodOrdering.onlineFoodOrdering.repository.OwnerRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.RestaurantRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.RestauranCreateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.RestaurantDeleteRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.RestaurantUpdateRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.response.RestaurantInfoResponse;
+import com.onlineFoodOrdering.onlineFoodOrdering.response.RestaurantPrivateInfoResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,19 +23,27 @@ public class RestaurantService {
 
     public void addOneRestaurant(RestauranCreateRequest request){
         Restaurant restaurant = new Restaurant();
-        restaurant.setBalance(0);
 
         //It will be saved as encrypted form in the database
-        restaurant.setPassword(restaurant.getPassword());
-        restaurant.setName(request.getName());
-        restaurant.setDistrict(request.getDistrict());
-        restaurant.setProvince(request.getProvince());
-        restaurant.setTaxNo(request.getTaxNo());
 
-        restaurantRepository.save(restaurant);
+        if(!restaurantRepository.existsRestaurantByName(request.getName())){
+            restaurant.setPassword(request.getPassword());
+
+            restaurant.setName(request.getName());
+            restaurant.setDistrict(request.getDistrict());
+            restaurant.setProvince(request.getProvince());
+            restaurant.setTaxNo(request.getTaxNo());
+
+            restaurantRepository.save(restaurant);
+        }
+
     }
 
     public void setOwnerToRestaurant(){
+
+    }
+
+    public void changePasswordOfRestaurant(){
 
     }
 
@@ -48,12 +59,28 @@ public class RestaurantService {
 
     }
 
-    public void updateRestaurantInfo(){
+    public void updateRestaurantInfo(Long restaurantId, RestaurantUpdateRequest request){
 
+        Restaurant updatingRestaurant = restaurantRepository.findById(restaurantId).orElse(null);
+
+        updatingRestaurant.setName(request.getName());
+        updatingRestaurant.setProvince(request.getProvince());
+        updatingRestaurant.setDistrict(request.getDistrict());
+        updatingRestaurant.setTaxNo(request.getTaxNo());
+
+        restaurantRepository.save(updatingRestaurant);
     }
 
-    public void getRestaurantInfo(){
+    public RestaurantPrivateInfoResponse getRestaurantPrivateInfo(Long restaurantId){
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+        RestaurantPrivateInfoResponse response = new RestaurantPrivateInfoResponse(restaurant);
+        return response;
+    }
 
+    public RestaurantInfoResponse getRestaurantInfo(Long restaurantId){
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+        RestaurantInfoResponse response = new RestaurantInfoResponse(restaurant);
+        return response;
     }
 
     public double getTotalRestaurantIncome(Long restaurantId, RestaurantDeleteRequest request){

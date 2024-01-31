@@ -1,18 +1,18 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.request;
 
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.Address;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Owner;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-public class RestauranCreateRequest {
-    private String name;
-    private String taxNo;
-    private String password;
+public class RestaurantUpdateRequest {
 
-    //private List<Owner> owners;
+    private String name;
+
+    private String taxNo;
 
     private String province;
     private String district;

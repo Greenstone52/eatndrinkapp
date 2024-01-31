@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class OrderCreateRequest {
     private Long restaurantId;
-    private Long MenuId;
+    private Long menuId;
     private Long foodDrinkId;
 }

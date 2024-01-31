@@ -44,7 +44,10 @@ public class Restaurant {
     private String province;
     private String district;
 
+    @JsonIgnore
     private double netProfit;
+
+    @JsonIgnore
     private double netEndorsement;
     private String password;
 }

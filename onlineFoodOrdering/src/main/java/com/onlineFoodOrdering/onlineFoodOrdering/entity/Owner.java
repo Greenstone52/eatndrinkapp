@@ -27,13 +27,16 @@ public class Owner extends CommonUserKnowledge {
     //@JsonIgnore
     //private BankAccount bankAccount;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-                    name = "owners_restaurants",
-                    joinColumns = @JoinColumn(name = "ownerId"),
-                    inverseJoinColumns = @JoinColumn(name = "restaurantId")
-    )
-    private List<Restaurant> restaurants;
+    //@ManyToMany(fetch = FetchType.LAZY)
+    //@JoinTable(
+    //                name = "owners_restaurants",
+    //                joinColumns = @JoinColumn(name = "ownerId"),
+    //                inverseJoinColumns = @JoinColumn(name = "restaurantId")
+    //)
+    //private List<Restaurant> restaurants;
+
+    @OneToMany(fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL,mappedBy = "owner")
+    private List<ShareRatio> shareRatios;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "detailsOfUserId")

@@ -102,7 +102,7 @@ public class CustomerService {
 
 
     // The constraint about password will be added.
-    public String deleteCustomer(Long id){
+    public String deleteCustomer(Long id, CustomerDeleteRequest request){
 
       Customer customer = findCustomer(id);
 
@@ -110,9 +110,14 @@ public class CustomerService {
           return "There is no such an user.";
       }
 
-      String email = customer.getEmail();
-      customerRepository.deleteById(customer.getId());
-      return "The user whose email is "+email+" was removed from the system.";
+      if(customer.getPassword().equals(request.getPassword())){
+          String email = customer.getEmail();
+          customerRepository.deleteById(customer.getId());
+          return "The user whose email is "+email+" was removed from the system.";
+      }else{
+          return "The password is entered incorrect!";
+      }
+
     }
 
 

@@ -32,9 +32,12 @@ public class Restaurant {
     //@JsonIgnore
     //private Address address;
 
-    @ManyToMany(fetch = FetchType.LAZY,mappedBy = "restaurants")
-    @JsonIgnore
-    private List<Owner> owners;
+    //@ManyToMany(fetch = FetchType.LAZY,mappedBy = "restaurants")
+    //@JsonIgnore
+    //private List<Owner> owners;
+
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL, mappedBy = "restaurant")
+    List<ShareRatio> shareRatios;
 
     //@OneToOne(fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL)
     //@JoinColumn(name = "ibanNo")

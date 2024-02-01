@@ -155,5 +155,34 @@ public class OwnerService {
         }
     }
 
+    public List<OwnerResponse> getTopNMostEarnedOwners(int n){
+        List<Owner> owners = ownerRepository.findAll();
+        List<Owner> result = new ArrayList<>();
+
+        double min = 0;
+        int index = 0;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < owners.size(); j++) {
+                if(owners.get(j).getBalance()>min){
+                    min = owners.get(j).getBalance();
+                    index = j;
+                }
+            }
+            result.add(owners.get(index));
+            owners.remove(index);
+            index = -1;
+        }
+
+        return result.stream().map(owner -> new OwnerResponse(owner)).collect(Collectors.toList());
+    }
+
+    public List<OwnerResponse> getTop5MostEarnedOwners(){
+        return getTopNMostEarnedOwners(5);
+    }
+
+    public List<OwnerResponse> getTop10MostEarnedOwners(){
+        return getTopNMostEarnedOwners(10);
+    }
 
 }

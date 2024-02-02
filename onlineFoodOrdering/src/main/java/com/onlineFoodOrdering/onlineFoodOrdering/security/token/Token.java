@@ -1,6 +1,7 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.security.token;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.onlineFoodOrdering.onlineFoodOrdering.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

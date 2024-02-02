@@ -1,13 +1,10 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.Owner;
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.Restaurant;
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.ShareRatio;
-import com.onlineFoodOrdering.onlineFoodOrdering.repository.OwnerRepository;
-import com.onlineFoodOrdering.onlineFoodOrdering.repository.RestaurantRepository;
-import com.onlineFoodOrdering.onlineFoodOrdering.repository.ShareRatioRepository;
+import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
+import com.onlineFoodOrdering.onlineFoodOrdering.repository.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerDeleteRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerUpdateRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerUserCreateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.SetOwnerToARestaurantRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OrderResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OwnerResponse;
@@ -25,6 +22,9 @@ public class OwnerService {
     private OwnerRepository ownerRepository;
     private RestaurantRepository restaurantRepository;
     private ShareRatioRepository shareRatioRepository;
+    private UserRepository userRepository;
+    private DetailsOfUserRepository detailsOfUserRepository;
+
     public List<OwnerResponse> getAllOwners(){
         List<Owner> owners = ownerRepository.findAll();
         return owners.stream().map(owner->new OwnerResponse(owner)).collect(Collectors.toList());
@@ -82,21 +82,32 @@ public class OwnerService {
 
     }
 
-    public void addOneOwner(Owner owner){
+    public void addOneOwner(OwnerUserCreateRequest request){
         Owner newOwner = new Owner();
+        User user = userRepository.findUserByUserDetailsIdAndRole(newOwner.getId(),"OWNER");
+        DetailsOfUser detailsOfUser = new DetailsOfUser();
 
         //newOwner.setBankAccount(owner.getBankAccount());
         //newOwner.setRestaurants(owner.getRestaurants());
 
-        newOwner.setEmail(owner.getEmail());
-        newOwner.setPassword(owner.getPassword());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        user.setRole(request.getRole());
+        user.setUserDetailsId(newOwner.getId());
 
         //newOwner.setUsername(owner.getUsername());
+        detailsOfUser.setGsm(request.getGsm());
+        detailsOfUser.setGender(request.getGender());
+        detailsOfUser.setLastName(request.getLastName());
+        detailsOfUser.setFirstName(request.getFirstName());
+        detailsOfUser.setBirthDate(request.getBirthDate());
 
-        newOwner.setDetailsOfUser(owner.getDetailsOfUser());
-        newOwner.setBalance(owner.getBalance());
-        newOwner.setBirthDate(owner.getBirthDate());
+        newOwner.setDetailsOfUser(detailsOfUser);
+        newOwner.setBalance(0);
+        newOwner.setUser(user);
 
+        detailsOfUserRepository.save(detailsOfUser);
+        userRepository.save(user);
         ownerRepository.save(newOwner);
     }
 
@@ -105,9 +116,9 @@ public class OwnerService {
         Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
         ShareRatio shareRatio = new ShareRatio();
         List<ShareRatio> shareRatioList = shareRatioRepository.findShareRatioByRestaurantId(restaurantId);
+        User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),"OWNER");
 
-
-        if(owner.getPassword().equals(request.getOwnerPassword()) && restaurant.getPassword().equals(request.getRestaurantPassword())){
+        if(user.getPassword().equals(request.getOwnerPassword()) && restaurant.getPassword().equals(request.getRestaurantPassword())){
 
             boolean isAlreadyPartner = false;
 
@@ -144,17 +155,20 @@ public class OwnerService {
 
     public String updateOneOwner(OwnerUpdateRequest request, Long id){
         Owner owner = ownerRepository.findById(id).orElse(null);
+        User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),"OWNER");
 
         if(owner != null){
 
             // Password will be decoded here before go to next lines.
 
-            if(owner.getPassword().equals(request.getPassword())){
+            if(user.getPassword().equals(request.getPassword())){
                 owner.getDetailsOfUser().setGender(request.getGender());
                 owner.getDetailsOfUser().setGsm(request.getGsm());
                 owner.getDetailsOfUser().setLastName(request.getLastname());
                 owner.getDetailsOfUser().setFirstName(request.getFirstname());
                 owner.getDetailsOfUser().setBirthDate(request.getBirthDate());
+                detailsOfUserRepository.save(owner.getDetailsOfUser());
+
                 return "The details of the owner was updated successfully.";
             }
 
@@ -167,12 +181,13 @@ public class OwnerService {
 
     public String deleteOneOwner(Long id,OwnerDeleteRequest request){
         Owner owner = ownerRepository.findById(id).orElse(null);
+        User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),"OWNER");
 
         if(owner != null){
 
             // Password will be decoded here before go to next lines.
 
-            if(owner.getPassword().equals(request.getPassword())){
+            if(user.getPassword().equals(request.getPassword())){
                 ownerRepository.delete(owner);
                 return "The owner is removed from the system.";
             }

@@ -1,7 +1,6 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.onlineFoodOrdering.onlineFoodOrdering.baseClass.CommonUserKnowledge;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -16,7 +15,7 @@ import java.util.List;
 @Table(name = "owner")
 @Getter
 @Setter
-public class Owner extends CommonUserKnowledge {
+public class Owner {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -44,19 +43,15 @@ public class Owner extends CommonUserKnowledge {
     @JsonIgnore
     private DetailsOfUser detailsOfUser;
 
-    @Override
-    public void setRole(Role role){
-        super.setRole(Role.OWNER);
-    }
+    //@Override
+    //public void setRole(Role role){
+    //    super.setRole(Role.OWNER);
+    //}
 
     private double balance;
 
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
-    private LocalDate birthDate;
-
-    //@OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
-    //@JoinColumn(name = "userId")
-    //@JsonIgnore
-    //private User user;
-
+    @OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
+    @JoinColumn(name = "userId")
+    @JsonIgnore
+    private User user;
 }

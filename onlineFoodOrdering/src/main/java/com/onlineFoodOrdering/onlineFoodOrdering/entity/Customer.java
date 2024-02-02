@@ -1,7 +1,6 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.onlineFoodOrdering.onlineFoodOrdering.baseClass.CommonUserKnowledge;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Customer extends CommonUserKnowledge {
+public class Customer{
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -28,10 +27,10 @@ public class Customer extends CommonUserKnowledge {
     @JsonIgnore
     private DetailsOfUser detailsOfUser;
 
-    @Override
-    public void setRole(Role role) {
-        super.setRole(Role.CUSTOMER);
-    }
+    //@Override
+    //public void setRole(Role role) {
+    //    super.setRole(Role.CUSTOMER);
+    //}
 
     @JsonIgnore
     private double totalSpendMoney;
@@ -39,8 +38,8 @@ public class Customer extends CommonUserKnowledge {
     @JsonIgnore
     private int totalNumberOfOrder;
 
-    //@OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
-    //@JoinColumn(name = "userId")
-    //@JsonIgnore
-    //private User user;
+    @OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
+    @JoinColumn(name = "userId")
+    @JsonIgnore
+    private User user;
 }

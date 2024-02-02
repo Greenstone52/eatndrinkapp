@@ -6,6 +6,7 @@ import com.onlineFoodOrdering.onlineFoodOrdering.request.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.AddressResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OrderResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.ReviewResponse;
+import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CustomerService {
     private CustomerRepository customerRepository;
+    private UserRepository userRepository;
+    private DetailsOfUserRepository detailsOfUserRepository;
 
     public Customer findCustomer(Long id){
         return customerRepository.findById(id).orElse(null);
@@ -68,6 +71,7 @@ public class CustomerService {
 
     public void addACustomer(Long id,CustomerCreateRequest request){
         Customer newCustomer = new Customer();
+        User user = new User();
 
         DetailsOfUser details = new DetailsOfUser();
         details.setBirthDate(request.getBirthDate());
@@ -76,9 +80,16 @@ public class CustomerService {
         details.setLastName(request.getLastName());
         details.setGsm(request.getGsm());
         newCustomer.setDetailsOfUser(details);
-        newCustomer.setEmail(request.getEmail());
-        newCustomer.setPassword(request.getPassword());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+        user.setRole(Role.CUSTOMER);
+        user.setUserDetailsId(newCustomer.getId());
 
+        // UserId nasıl tutulacak !!!
+        newCustomer.setUser(user);
+
+        detailsOfUserRepository.save(details);
+        userRepository.save(user);
         customerRepository.save(newCustomer);
     }
 
@@ -93,6 +104,7 @@ public class CustomerService {
         details.setGsm(request.getGsm());
         updatedCustomer.setDetailsOfUser(details);
 
+        detailsOfUserRepository.save(details);
         customerRepository.save(updatedCustomer);
     }
 
@@ -105,14 +117,17 @@ public class CustomerService {
     public String deleteCustomer(Long id, CustomerDeleteRequest request){
 
       Customer customer = findCustomer(id);
+      User user = userRepository.findUserByUserDetailsIdAndRole(customer.getId(),"CUSTOMER");
 
-      if(customer == null){
+      if(user == null){
           return "There is no such an user.";
       }
 
-      if(customer.getPassword().equals(request.getPassword())){
-          String email = customer.getEmail();
+      if(user.getPassword().equals(request.getPassword())){
+          String email = user.getEmail();
           customerRepository.deleteById(customer.getId());
+          // userRepository.deleteById(user.getId());
+          // An error may be occur here as orphanal remove is not working well.
           return "The user whose email is "+email+" was removed from the system.";
       }else{
           return "The password is entered incorrect!";

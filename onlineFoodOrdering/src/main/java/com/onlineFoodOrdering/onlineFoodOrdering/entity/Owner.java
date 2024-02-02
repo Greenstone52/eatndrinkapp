@@ -36,6 +36,7 @@ public class Owner extends CommonUserKnowledge {
     //private List<Restaurant> restaurants;
 
     @OneToMany(fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL,mappedBy = "owner")
+    @JsonIgnore
     private List<ShareRatio> shareRatios;
 
     @OneToOne(fetch = FetchType.EAGER)

@@ -1,9 +1,6 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.response;
 
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.BankAccount;
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.DetailsOfUser;
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.Owner;
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.Restaurant;
+import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
 import lombok.Data;
 
 import java.util.List;
@@ -12,9 +9,9 @@ import java.util.List;
 public class OwnerResponse {
 
     private DetailsOfUser detailsOfUser;
-    private List<Restaurant> restaurants;
+    private List<ShareRatio> shareRatios;
     public OwnerResponse(Owner owner){
         this.detailsOfUser = owner.getDetailsOfUser();
-        this.restaurants = owner.getRestaurants();
+        this.shareRatios = owner.getShareRatios();
     }
 }

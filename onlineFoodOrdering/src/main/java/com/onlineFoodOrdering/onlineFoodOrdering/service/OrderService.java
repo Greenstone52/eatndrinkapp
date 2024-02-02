@@ -23,6 +23,8 @@ public class OrderService {
     private RestaurantRepository restaurantRepository;
     private FoodDrinkRepository foodDrinkRepository;
     private CardRepository cardRepository;
+    private ShareRatioRepository shareRatioRepository;
+    private OwnerRepository ownerRepository;
 
     public Customer findCustomer(Long id){
         return customerRepository.findById(id).orElse(null);
@@ -57,6 +59,17 @@ public class OrderService {
                     // Money is added to the bank account of the restaurant
                     restaurant.setNetEndorsement(restaurant.getNetEndorsement() + foodDrink.getSalesPrice());
                     restaurant.setNetProfit(restaurant.getNetProfit() + foodDrink.getProfit());
+                    restaurantRepository.save(restaurant);
+
+                    // ShareRatio process
+                    List<ShareRatio> shareRatioList = shareRatioRepository.findShareRatioByRestaurantId(restaurant.getId());
+                    for (int i = 0; i < shareRatioList.size(); i++) {
+                        double shareRatio = shareRatioList.get(i).getShareRatio();
+                        Owner owner = ownerRepository.findById(shareRatioList.get(i).getOwner().getId()).orElse(null);
+                        owner.setBalance(owner.getBalance() + foodDrink.getProfit()*shareRatio);
+                        ownerRepository.save(owner);
+
+                    }
 
                     return "Your order is processed on the system.";
                 }

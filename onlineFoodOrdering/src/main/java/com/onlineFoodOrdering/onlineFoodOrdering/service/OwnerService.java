@@ -2,8 +2,10 @@ package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Owner;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Restaurant;
+import com.onlineFoodOrdering.onlineFoodOrdering.entity.ShareRatio;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.OwnerRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.RestaurantRepository;
+import com.onlineFoodOrdering.onlineFoodOrdering.repository.ShareRatioRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerDeleteRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.SetOwnerToARestaurantRequest;
@@ -22,15 +24,21 @@ public class OwnerService {
 
     private OwnerRepository ownerRepository;
     private RestaurantRepository restaurantRepository;
+    private ShareRatioRepository shareRatioRepository;
     public List<OwnerResponse> getAllOwners(){
         List<Owner> owners = ownerRepository.findAll();
         return owners.stream().map(owner->new OwnerResponse(owner)).collect(Collectors.toList());
     }
 
     public List<OwnerResponse> getOwnersByRestaurantId(Long restaurantId){
-        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
-        List<Owner> owners = restaurant.getOwners();
-        return owners.stream().map(owner->new OwnerResponse(owner)).collect(Collectors.toList());
+        List<ShareRatio> shareRatios = shareRatioRepository.findShareRatioByRestaurantId(restaurantId);
+        List<Owner> result = new ArrayList<>();
+
+        for (int i = 0; i < shareRatios.size(); i++) {
+            result.add(shareRatios.get(i).getOwner());
+        }
+
+        return result.stream().map(owner->new OwnerResponse(owner)).collect(Collectors.toList());
     }
 
     public List<OwnerResponse> getTopFiveOwners(){
@@ -76,11 +84,15 @@ public class OwnerService {
 
     public void addOneOwner(Owner owner){
         Owner newOwner = new Owner();
+
         //newOwner.setBankAccount(owner.getBankAccount());
-        newOwner.setRestaurants(owner.getRestaurants());
+        //newOwner.setRestaurants(owner.getRestaurants());
+
         newOwner.setEmail(owner.getEmail());
         newOwner.setPassword(owner.getPassword());
+
         //newOwner.setUsername(owner.getUsername());
+
         newOwner.setDetailsOfUser(owner.getDetailsOfUser());
         newOwner.setBalance(owner.getBalance());
         newOwner.setBirthDate(owner.getBirthDate());
@@ -91,22 +103,39 @@ public class OwnerService {
     public String setAnOwnerToARestaurant(Long ownerId, Long restaurantId, SetOwnerToARestaurantRequest request){
         Owner owner = ownerRepository.findById(ownerId).orElse(null);
         Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+        ShareRatio shareRatio = new ShareRatio();
+        List<ShareRatio> shareRatioList = shareRatioRepository.findShareRatioByRestaurantId(restaurantId);
 
-        if(owner.getPassword().equals(request.getOwnerPW()) && restaurant.getPassword().equals(request.getRestaurantPW())){
+
+        if(owner.getPassword().equals(request.getOwnerPassword()) && restaurant.getPassword().equals(request.getRestaurantPassword())){
 
             boolean isAlreadyPartner = false;
 
-            for (int i = 0; i < restaurant.getOwners().size(); i++) {
-                if(restaurant.getOwners().get(i) == owner){
+            for (int i = 0; i < shareRatioList.size(); i++) {
+                if(shareRatioList.get(i).getOwner() == owner){
                     isAlreadyPartner = true;
                     return "The owner was already an partner of this restaurant.";
                 }
             }
 
             if(!isAlreadyPartner){
-                restaurant.getOwners().add(owner);
+                //restaurant.getOwners().add(owner);
+                shareRatio.setRestaurant(restaurant);
+                shareRatio.setOwner(owner);
                 return "The process was completed successfully.";
             }
+
+            //for (int i = 0; i < restaurant.getOwners().size(); i++) {
+            //    if(restaurant.getOwners().get(i) == owner){
+            //        isAlreadyPartner = true;
+            //        return "The owner was already an partner of this restaurant.";
+            //    }
+            //}
+//
+            //if(!isAlreadyPartner){
+            //    restaurant.getOwners().add(owner);
+            //    return "The process was completed successfully.";
+            //}
         }
 
         return "Incorrent information!";

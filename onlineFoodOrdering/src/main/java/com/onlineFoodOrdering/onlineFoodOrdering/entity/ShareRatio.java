@@ -2,11 +2,15 @@ package com.onlineFoodOrdering.onlineFoodOrdering.entity;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.compositeKey.ShareRatioKey;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @Table(name = "shareRatio")
+@AllArgsConstructor
+@NoArgsConstructor
 public class ShareRatio {
 
     @EmbeddedId

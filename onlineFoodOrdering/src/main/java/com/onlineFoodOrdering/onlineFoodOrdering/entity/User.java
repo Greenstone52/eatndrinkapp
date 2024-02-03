@@ -25,7 +25,4 @@ public class User {
     private String password;
     private Role role;
     private Long userDetailsId;
-
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
-    private LocalDate birthDate;
 }

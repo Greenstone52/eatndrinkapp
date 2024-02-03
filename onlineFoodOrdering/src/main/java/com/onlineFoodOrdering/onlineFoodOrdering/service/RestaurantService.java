@@ -17,9 +17,6 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class RestaurantService {
     private RestaurantRepository restaurantRepository;
-    private MenuRepository menuRepository;
-    private FoodDrinkRepository foodDrinkRepository;
-    private OwnerRepository ownerRepository;
 
     public void addOneRestaurant(RestauranCreateRequest request){
         Restaurant restaurant = new Restaurant();

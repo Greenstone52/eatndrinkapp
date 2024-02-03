@@ -2,9 +2,11 @@ package com.onlineFoodOrdering.onlineFoodOrdering.response;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Menu;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Restaurant;
+import lombok.Data;
 
 import java.util.List;
 
+@Data
 public class RestaurantInfoResponse {
     private String name;
     private String province;

@@ -1,7 +1,6 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.onlineFoodOrdering.onlineFoodOrdering.baseClass.CommonUserKnowledge;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "manager_admin")
 @Data
-public class ManagerAdmin extends CommonUserKnowledge {
+public class ManagerAdmin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
@@ -22,4 +21,9 @@ public class ManagerAdmin extends CommonUserKnowledge {
     @JoinColumn(name = "detailsOfUserId")
     @JsonIgnore
     private DetailsOfUser detailsOfUser;
+
+    @OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
+    @JsonIgnore
+    @JoinColumn(name = "userId")
+    private User user;
 }

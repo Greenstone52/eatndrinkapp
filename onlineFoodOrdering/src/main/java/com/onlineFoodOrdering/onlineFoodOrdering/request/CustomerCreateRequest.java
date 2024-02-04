@@ -4,7 +4,6 @@ import com.onlineFoodOrdering.onlineFoodOrdering.enums.Gender;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.lang.foreign.SegmentScope;
 import java.time.LocalDate;
 
 @Data

@@ -8,6 +8,8 @@ import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerUserCreateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.SetOwnerToARestaurantRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OrderResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OwnerResponse;
+import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.AuthenticationRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -82,9 +84,38 @@ public class OwnerService {
 
     }
 
-    public void addOneOwner(OwnerUserCreateRequest request){
+    //public void addOneOwner(OwnerUserCreateRequest request){
+    //    Owner newOwner = new Owner();
+    //    User user = userRepository.findUserByUserDetailsIdAndRole(newOwner.getId(), Role.OWNER);
+    //    DetailsOfUser detailsOfUser = new DetailsOfUser();
+//
+    //    //newOwner.setBankAccount(owner.getBankAccount());
+    //    //newOwner.setRestaurants(owner.getRestaurants());
+//
+    //    user.setEmail(request.getEmail());
+    //    user.setPassword(request.getPassword());
+    //    user.setRole(request.getRole());
+    //    user.setUserDetailsId(newOwner.getId());
+//
+    //    //newOwner.setUsername(owner.getUsername());
+    //    detailsOfUser.setGsm(request.getGsm());
+    //    detailsOfUser.setGender(request.getGender());
+    //    detailsOfUser.setLastName(request.getLastName());
+    //    detailsOfUser.setFirstName(request.getFirstName());
+    //    detailsOfUser.setBirthDate(request.getBirthDate());
+//
+    //    newOwner.setDetailsOfUser(detailsOfUser);
+    //    newOwner.setBalance(0);
+    //    newOwner.setUser(user);
+//
+    //    detailsOfUserRepository.save(detailsOfUser);
+    //    userRepository.save(user);
+    //    ownerRepository.save(newOwner);
+    //}
+
+    public void addOneOwner(AuthenticationRequest request){
         Owner newOwner = new Owner();
-        User user = userRepository.findUserByUserDetailsIdAndRole(newOwner.getId(),"OWNER");
+        User user = userRepository.findUserByUserDetailsIdAndRole(newOwner.getId(), Role.OWNER);
         DetailsOfUser detailsOfUser = new DetailsOfUser();
 
         //newOwner.setBankAccount(owner.getBankAccount());
@@ -116,7 +147,7 @@ public class OwnerService {
         Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
         ShareRatio shareRatio = new ShareRatio();
         List<ShareRatio> shareRatioList = shareRatioRepository.findShareRatioByRestaurantId(restaurantId);
-        User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),"OWNER");
+        User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),Role.OWNER);
 
         if(user.getPassword().equals(request.getOwnerPassword()) && restaurant.getPassword().equals(request.getRestaurantPassword())){
 
@@ -155,7 +186,7 @@ public class OwnerService {
 
     public String updateOneOwner(OwnerUpdateRequest request, Long id){
         Owner owner = ownerRepository.findById(id).orElse(null);
-        User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),"OWNER");
+        User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),Role.OWNER);
 
         if(owner != null){
 
@@ -181,7 +212,7 @@ public class OwnerService {
 
     public String deleteOneOwner(Long id,OwnerDeleteRequest request){
         Owner owner = ownerRepository.findById(id).orElse(null);
-        User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),"OWNER");
+        User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),Role.OWNER);
 
         if(owner != null){
 

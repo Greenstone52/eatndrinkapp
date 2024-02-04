@@ -22,7 +22,7 @@ public class Customer{
     //@JsonIgnore
     //private Card card;
 
-    @OneToOne(fetch = FetchType.LAZY,orphanRemoval = true,cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
     @JoinColumn(name = "detailsOfUserId")
     @JsonIgnore
     private DetailsOfUser detailsOfUser;

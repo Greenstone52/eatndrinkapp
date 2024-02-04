@@ -6,6 +6,7 @@ import com.onlineFoodOrdering.onlineFoodOrdering.request.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.AddressResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OrderResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.ReviewResponse;
+import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.AuthenticationRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -69,27 +70,54 @@ public class CustomerService {
     }
 
 
-    public void addACustomer(Long id,CustomerCreateRequest request){
+    //public void addACustomer(CustomerCreateRequest request){
+    //    Customer newCustomer = new Customer();
+    //    User user = new User();
+//
+    //    DetailsOfUser details = new DetailsOfUser();
+    //    details.setBirthDate(request.getBirthDate());
+    //    details.setGender(request.getGender());
+    //    details.setFirstName(request.getFirstName());
+    //    details.setLastName(request.getLastName());
+    //    details.setGsm(request.getGsm());
+    //    newCustomer.setDetailsOfUser(details);
+    //    user.setEmail(request.getEmail());
+    //    user.setPassword(request.getPassword());
+    //    user.setRole(Role.CUSTOMER);
+    //    user.setUserDetailsId(newCustomer.getId());
+//
+    //    // UserId nasıl tutulacak !!!
+    //    newCustomer.setUser(user);
+//
+    //    detailsOfUserRepository.save(details);
+    //    userRepository.save(user);
+    //    customerRepository.save(newCustomer);
+    //}
+
+    public void addACustomer(AuthenticationRequest request){
         Customer newCustomer = new Customer();
         User user = new User();
 
+        //details' data
         DetailsOfUser details = new DetailsOfUser();
         details.setBirthDate(request.getBirthDate());
         details.setGender(request.getGender());
         details.setFirstName(request.getFirstName());
         details.setLastName(request.getLastName());
         details.setGsm(request.getGsm());
+        detailsOfUserRepository.save(details);
+
         newCustomer.setDetailsOfUser(details);
+
+        //user's data
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setRole(Role.CUSTOMER);
-        user.setUserDetailsId(newCustomer.getId());
-
-        // UserId nasıl tutulacak !!!
-        newCustomer.setUser(user);
-
-        detailsOfUserRepository.save(details);
+        user.setUserDetailsId(customerRepository.count() + 1);
         userRepository.save(user);
+
+        // UserId nasıl tutulacak !!! // otomatik artıyor zaten !!!
+        newCustomer.setUser(user);
         customerRepository.save(newCustomer);
     }
 
@@ -117,7 +145,7 @@ public class CustomerService {
     public String deleteCustomer(Long id, CustomerDeleteRequest request){
 
       Customer customer = findCustomer(id);
-      User user = userRepository.findUserByUserDetailsIdAndRole(customer.getId(),"CUSTOMER");
+      User user = userRepository.findUserByUserDetailsIdAndRole(customer.getId(),Role.CUSTOMER);
 
       if(user == null){
           return "There is no such an user.";

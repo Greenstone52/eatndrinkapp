@@ -6,6 +6,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/owners")
-public class OwnerController {
+@RequestMapping("/api/v1/orders")
+public class OrderController {
 }

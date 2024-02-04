@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-//@RestController
-//@AllArgsConstructor
-//@RequestMapping
-public class AdminController {
+@RestController
+@AllArgsConstructor
+@RequestMapping("/api/v1/fooddrinks")
+public class FoodDrinkController {
 }

@@ -17,27 +17,27 @@ public class AddressController {
     private AddressService addressService;
 
     @GetMapping("/{customerId}")
-    public List<AddressResponse> getAllAddressesOfTheCustomer(@RequestParam Long customerId){
+    public List<AddressResponse> getAllAddressesOfTheCustomer(@PathVariable Long customerId){
         return addressService.getAllTheAddressOfTheCustomer(customerId);
     }
 
     @GetMapping("/{customerId}/{title}")
-    public AddressResponse getOneAddressByCustomerIdAndTitle(@RequestParam Long customerId, @RequestParam String title){
+    public AddressResponse getOneAddressByCustomerIdAndTitle(@PathVariable Long customerId, @PathVariable String title){
         return addressService.getOneAddressOfTheCustomerAndAddressTitle(customerId,title);
     }
 
     @PostMapping("/{customerId}")
-    public void postAnAddress(@RequestParam Long customerId, @RequestBody Address address){
+    public void postAnAddress(@PathVariable Long customerId, @RequestBody Address address){
         addressService.addAnAddress(customerId,address);
     }
 
     @PutMapping("/{id}/{addressTitle}")
-    public void updateAnAddress(@RequestParam Long id, @RequestParam String addressTitle, @RequestBody AddressUpdateRequest request){
+    public void updateAnAddress(@PathVariable Long id, @PathVariable String addressTitle, @RequestBody AddressUpdateRequest request){
         addressService.updateAnAddress(id,addressTitle,request);
     }
 
     @DeleteMapping("/{id}/{addressTitle}")
-    public void deleteAnAddress(@RequestParam Long id, @RequestParam String addressTitle){
+    public void deleteAnAddress(@PathVariable Long id, @PathVariable String addressTitle){
         addressService.deleteAnAddress(id,addressTitle);
     }
 }

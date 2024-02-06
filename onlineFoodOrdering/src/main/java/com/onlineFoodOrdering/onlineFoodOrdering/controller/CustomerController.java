@@ -23,7 +23,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{num}")
-    public Customer[] getTopNOrderedMostCustomer(@RequestParam int num){
+    public Customer[] getTopNOrderedMostCustomer(@PathVariable int num){
         return customerService.getTopNOrderedMostCustomer(num);
     }
 
@@ -43,12 +43,12 @@ public class CustomerController {
     }
 
     @PutMapping("/{id}")
-    public void updateCustomerInfo(@RequestParam Long id, @RequestBody CustomerUpdateRequest request){
+    public void updateCustomerInfo(@PathVariable Long id, @RequestBody CustomerUpdateRequest request){
         customerService.updateCustomerInfo(id,request);
     }
 
     @DeleteMapping("/{id}")
-    public String deleteCustomer(@RequestParam Long id, @RequestBody CustomerDeleteRequest request){
+    public String deleteCustomer(@PathVariable Long id, @RequestBody CustomerDeleteRequest request){
         return customerService.deleteCustomer(id,request);
     }
 }

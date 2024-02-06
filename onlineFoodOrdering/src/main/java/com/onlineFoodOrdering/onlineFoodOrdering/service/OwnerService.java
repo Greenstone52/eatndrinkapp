@@ -59,7 +59,7 @@ public class OwnerService {
         }
     }
 
-    public List<OwnerResponse> getTopNOwners(long N){
+    public List<OwnerResponse> getTopNOwners(Long N){
 
         List<Owner> allOwners = ownerRepository.findAll();
         ArrayList<Owner> topN = new ArrayList<>();

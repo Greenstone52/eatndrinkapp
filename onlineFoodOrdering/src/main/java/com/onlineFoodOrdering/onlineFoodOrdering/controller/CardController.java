@@ -17,17 +17,17 @@ public class CardController {
     private CardService cardService;
 
     @GetMapping("/{id}")
-    public List<CardResponse> getAllTheCardsOfTheCustomer(@RequestParam Long id){
+    public List<CardResponse> getAllTheCardsOfTheCustomer(@PathVariable Long id){
         return cardService.getAllTheCardsOfTheCustomer(id);
     }
 
     @PostMapping("/{id}")
-    public void setACard(@RequestParam Long id, @RequestBody Card card){
+    public void setACard(@PathVariable Long id, @RequestBody Card card){
         cardService.setACard(id,card);
     }
 
     @PutMapping("/{id}/{cardNumber}")
-    public void updateSelectedCard(@RequestParam Long id,@RequestParam String cardNumber,@RequestBody Card updateCard){
+    public void updateSelectedCard(@PathVariable Long id,@PathVariable String cardNumber,@RequestBody Card updateCard){
         cardService.updateSelectedCard(id,cardNumber,updateCard);
     }
 

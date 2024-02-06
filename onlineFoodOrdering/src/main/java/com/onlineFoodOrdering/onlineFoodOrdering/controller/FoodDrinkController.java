@@ -16,27 +16,27 @@ public class FoodDrinkController {
     private FoodDrinkService foodDrinkService;
 
     @GetMapping("/{restaurantId}")
-    public List<FoodDrink> getAllTheFoodDrinksOfTheRestaurant(@RequestParam Long restaurantId){
+    public List<FoodDrink> getAllTheFoodDrinksOfTheRestaurant(@PathVariable Long restaurantId){
         return foodDrinkService.getAllTheFoodDrinksOfTheRestaurant(restaurantId);
     }
 
     @GetMapping("/{menuId}")
-    public List<FoodDrink> getOneMenusFoodDrink(@RequestParam Long menuId){
+    public List<FoodDrink> getOneMenusFoodDrink(@PathVariable Long menuId){
         return foodDrinkService.getOneMenusFoodDrink(menuId);
     }
 
     @PostMapping("/{menuId}")
-    public void addFoodDrink(@RequestParam Long menuId, @RequestBody FoodDrinkCreateRequest request) {
+    public void addFoodDrink(@PathVariable Long menuId, @RequestBody FoodDrinkCreateRequest request) {
         foodDrinkService.addFoodDrink(menuId,request);
     }
 
     @PutMapping("/{foodDrinkId}")
-    public void updateFoodDrink(@RequestParam Long foodDrinkId, @RequestBody FoodDrinkUpdateRequest request){
+    public void updateFoodDrink(@PathVariable Long foodDrinkId, @RequestBody FoodDrinkUpdateRequest request){
         foodDrinkService.updateFoodDrink(foodDrinkId,request);
     }
 
     @DeleteMapping("/{foodDrinkId}")
-    public void deleteFoodDrink(@RequestParam Long foodDrinkId){
+    public void deleteFoodDrink(@PathVariable Long foodDrinkId){
         foodDrinkService.deleteFoodDrink(foodDrinkId);
     }
 }

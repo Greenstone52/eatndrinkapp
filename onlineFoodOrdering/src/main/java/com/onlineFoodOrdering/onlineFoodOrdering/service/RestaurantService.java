@@ -36,7 +36,7 @@ public class RestaurantService {
 
     }
 
-    public void setOwnerToRestaurant(){
+    public void setOwnerToRestaurant(Long ownerId,Long restaurantId){
 
     }
 

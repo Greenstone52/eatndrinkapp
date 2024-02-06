@@ -21,29 +21,32 @@ public class ManagerAdminService {
 
     public void addOneManagerAdmin(AuthenticationRequest request){
         ManagerAdmin newManagerAdmin = new ManagerAdmin();
-        User user = userRepository.findUserByUserDetailsIdAndRole(newManagerAdmin.getId(), newManagerAdmin.getUser().getRole());
+        User user = new User();
         DetailsOfUser detailsOfUser = new DetailsOfUser();
 
         //newOwner.setBankAccount(owner.getBankAccount());
         //newOwner.setRestaurants(owner.getRestaurants());
 
+        Long userCount = userRepository.count();
+
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setRole(request.getRole());
-        user.setUserDetailsId(newManagerAdmin.getId());
-
-        //newOwner.setUsername(owner.getUsername());
-        detailsOfUser.setGsm(request.getGsm());
-        detailsOfUser.setGender(request.getGender());
-        detailsOfUser.setLastName(request.getLastName());
-        detailsOfUser.setFirstName(request.getFirstName());
-        detailsOfUser.setBirthDate(request.getBirthDate());
-
-        newManagerAdmin.setDetailsOfUser(detailsOfUser);
-        newManagerAdmin.setUser(user);
-
-        detailsOfUserRepository.save(detailsOfUser);
+        user.setUserDetailsId(managerAdminRepository.count() + 1);
         userRepository.save(user);
+
+        if(userRepository.count() >= userCount){
+            //newOwner.setUsername(owner.getUsername());
+            detailsOfUser.setGsm(request.getGsm());
+            detailsOfUser.setGender(request.getGender());
+            detailsOfUser.setLastName(request.getLastName());
+            detailsOfUser.setFirstName(request.getFirstName());
+            detailsOfUser.setBirthDate(request.getBirthDate());
+            detailsOfUserRepository.save(detailsOfUser);
+            newManagerAdmin.setDetailsOfUser(detailsOfUser);
+        }
+
+        newManagerAdmin.setUser(user);
         managerAdminRepository.save(newManagerAdmin);
     }
 }

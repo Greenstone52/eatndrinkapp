@@ -98,16 +98,7 @@ public class CustomerService {
         Customer newCustomer = new Customer();
         User user = new User();
 
-        //details' data
-        DetailsOfUser details = new DetailsOfUser();
-        details.setBirthDate(request.getBirthDate());
-        details.setGender(request.getGender());
-        details.setFirstName(request.getFirstName());
-        details.setLastName(request.getLastName());
-        details.setGsm(request.getGsm());
-        detailsOfUserRepository.save(details);
-
-        newCustomer.setDetailsOfUser(details);
+        Long userCount = userRepository.count();
 
         //user's data
         user.setEmail(request.getEmail());
@@ -115,6 +106,19 @@ public class CustomerService {
         user.setRole(Role.CUSTOMER);
         user.setUserDetailsId(customerRepository.count() + 1);
         userRepository.save(user);
+
+        // This means a user was enrolled
+        if(userRepository.count() >= userCount){
+            //details' data
+            DetailsOfUser details = new DetailsOfUser();
+            details.setBirthDate(request.getBirthDate());
+            details.setGender(request.getGender());
+            details.setFirstName(request.getFirstName());
+            details.setLastName(request.getLastName());
+            details.setGsm(request.getGsm());
+            detailsOfUserRepository.save(details);
+            newCustomer.setDetailsOfUser(details);
+        }
 
         // UserId nasıl tutulacak !!! // otomatik artıyor zaten !!!
         newCustomer.setUser(user);

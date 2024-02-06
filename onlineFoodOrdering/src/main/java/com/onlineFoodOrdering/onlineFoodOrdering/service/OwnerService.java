@@ -115,30 +115,34 @@ public class OwnerService {
 
     public void addOneOwner(AuthenticationRequest request){
         Owner newOwner = new Owner();
-        User user = userRepository.findUserByUserDetailsIdAndRole(newOwner.getId(), Role.OWNER);
+        User user = new User();
         DetailsOfUser detailsOfUser = new DetailsOfUser();
 
         //newOwner.setBankAccount(owner.getBankAccount());
         //newOwner.setRestaurants(owner.getRestaurants());
 
+        Long userCount = userRepository.count();
+
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setRole(request.getRole());
-        user.setUserDetailsId(newOwner.getId());
+        user.setUserDetailsId(ownerRepository.count() + 1);
+        userRepository.save(user);
 
-        //newOwner.setUsername(owner.getUsername());
-        detailsOfUser.setGsm(request.getGsm());
-        detailsOfUser.setGender(request.getGender());
-        detailsOfUser.setLastName(request.getLastName());
-        detailsOfUser.setFirstName(request.getFirstName());
-        detailsOfUser.setBirthDate(request.getBirthDate());
 
-        newOwner.setDetailsOfUser(detailsOfUser);
+        if(userRepository.count() >= userCount){
+            //newOwner.setUsername(owner.getUsername());
+            detailsOfUser.setGsm(request.getGsm());
+            detailsOfUser.setGender(request.getGender());
+            detailsOfUser.setLastName(request.getLastName());
+            detailsOfUser.setFirstName(request.getFirstName());
+            detailsOfUser.setBirthDate(request.getBirthDate());
+            detailsOfUserRepository.save(detailsOfUser);
+            newOwner.setDetailsOfUser(detailsOfUser);
+        }
+
         newOwner.setBalance(0);
         newOwner.setUser(user);
-
-        detailsOfUserRepository.save(detailsOfUser);
-        userRepository.save(user);
         ownerRepository.save(newOwner);
     }
 

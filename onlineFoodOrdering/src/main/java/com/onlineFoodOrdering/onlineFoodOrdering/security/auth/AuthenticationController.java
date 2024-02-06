@@ -22,13 +22,13 @@ public class AuthenticationController {
     @PostMapping
     public void register(@RequestBody AuthenticationRequest request){
 
-        //if(request.getRole().equals(Role.CUSTOMER)){
-        customerService.addACustomer(request);
-        //}else if(request.getRole().equals(Role.OWNER)){
-        //    ownerService.addOneOwner(request);
-        //}else if(request.getRole().equals(Role.ADMIN) || request.getRole().equals(Role.MANAGER)){
-        //    managerAdminService.addOneManagerAdmin(request);
-        //}
+        if(request.getRole().equals(Role.CUSTOMER)){
+            customerService.addACustomer(request);
+        }else if(request.getRole().equals(Role.OWNER)){
+            ownerService.addOneOwner(request);
+        }else if(request.getRole().equals(Role.ADMIN) || request.getRole().equals(Role.MANAGER)){
+            managerAdminService.addOneManagerAdmin(request);
+        }
     }
 
     public AuthenticationResponse authenticate(){

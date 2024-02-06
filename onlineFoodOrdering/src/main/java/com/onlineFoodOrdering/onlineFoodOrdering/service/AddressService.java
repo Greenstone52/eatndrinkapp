@@ -71,6 +71,12 @@ public class AddressService {
 
     }
 
+    public AddressResponse getOneAddressOfTheCustomerAndAddressTitle(Long id,String title){
+        Address address = addressRepository.findAddressByCustomerIdAndAddressTitle(id,title).orElse(null);
+        AddressResponse response = new AddressResponse(address);
+        return response;
+    }
+
     public List<AddressResponse> getAllTheAddressOfTheCustomer(Long id){
         Customer customer = findCustomer(id);
         List<Address> addresses = addressRepository.findAll();

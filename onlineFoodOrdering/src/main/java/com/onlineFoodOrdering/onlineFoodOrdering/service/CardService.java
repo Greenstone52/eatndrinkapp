@@ -5,11 +5,13 @@ import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.CardRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.CustomerRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.CardDeleteRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.response.CardResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -22,8 +24,9 @@ public class CardService {
         return customerRepository.findById(id).orElse(null);
     }
 
-    public List<Card> getAllTheCardsOfTheCustomer(Long id){
-        return cardRepository.findCardByCustomerId(id);
+    public List<CardResponse> getAllTheCardsOfTheCustomer(Long id){
+        List<Card> cards = cardRepository.findCardByCustomerId(id);
+        return cards.stream().map(card -> new CardResponse(card)).collect(Collectors.toList());
     }
 
     public void setACard(Long id, Card card){

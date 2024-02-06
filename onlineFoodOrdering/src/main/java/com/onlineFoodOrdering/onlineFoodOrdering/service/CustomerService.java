@@ -4,6 +4,7 @@ import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.AddressResponse;
+import com.onlineFoodOrdering.onlineFoodOrdering.response.CustomerResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OrderResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.ReviewResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.AuthenticationRequest;
@@ -28,8 +29,8 @@ public class CustomerService {
         return customerRepository.findById(id).orElse(null);
     }
 
-    public List<Customer> getAllTheCustomers(){
-        return customerRepository.findAll();
+    public List<CustomerResponse> getAllTheCustomers(){
+        return customerRepository.findAll().stream().map(customer -> new CustomerResponse(customer)).collect(Collectors.toList());
     }
 
     public Customer[] getTopNOrderedMostCustomer(int num){

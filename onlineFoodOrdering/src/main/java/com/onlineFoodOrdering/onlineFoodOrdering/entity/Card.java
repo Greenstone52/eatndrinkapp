@@ -26,15 +26,16 @@ public class Card {
     @Max(12)
     private short month;
 
-    @Length(min = 4,max = 4)
     @Min(2025)
+    @Max(2040)
     private short year;
 
     @Length(min = 16,max = 16)
     @Column(unique = true)
     private String cardNumber;
 
-    @Length(min = 3,max = 3)
+    @Min(100)
+    @Max(999)
     private short cvc;
     private String name;
 

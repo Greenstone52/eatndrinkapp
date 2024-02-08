@@ -4,6 +4,7 @@ import com.onlineFoodOrdering.onlineFoodOrdering.entity.Card;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.CardRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.CustomerRepository;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.CardCreateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.CardDeleteRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.CardResponse;
 import lombok.AllArgsConstructor;
@@ -29,7 +30,7 @@ public class CardService {
         return cards.stream().map(card -> new CardResponse(card)).collect(Collectors.toList());
     }
 
-    public void setACard(Long id, Card card){
+    public void setACard(Long id, CardCreateRequest card){
         Customer customer = findCustomer(id);
 
         Card newCard = new Card();
@@ -43,9 +44,10 @@ public class CardService {
         cardRepository.save(newCard);
     }
 
-    public void updateSelectedCard(Long id,String cardNumber,Card updateCard){
+    public void updateSelectedCard(Long id,String cardNumber,CardCreateRequest updateCard){
         Card card = cardRepository.findCardByCustomerIdAndCardNumber(id,cardNumber).orElse(null);
 
+        card.setName(updateCard.getName());
         card.setCvc(updateCard.getCvc());
         card.setCardNumber(updateCard.getCardNumber());
         card.setYear(updateCard.getYear());

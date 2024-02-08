@@ -27,17 +27,17 @@ public class AddressController {
     }
 
     @PostMapping("/{customerId}")
-    public void postAnAddress(@PathVariable Long customerId, @RequestBody Address address){
+    public void postAnAddress(@PathVariable Long customerId, @RequestBody AddressCreateRequest address){
         addressService.addAnAddress(customerId,address);
     }
 
     @PutMapping("/{id}/{addressTitle}")
-    public void updateAnAddress(@PathVariable Long id, @PathVariable String addressTitle, @RequestBody AddressUpdateRequest request){
-        addressService.updateAnAddress(id,addressTitle,request);
+    public String updateAnAddress(@PathVariable Long id, @PathVariable String addressTitle, @RequestBody AddressUpdateRequest request) throws Exception{
+        return addressService.updateAnAddress(id,addressTitle,request);
     }
 
     @DeleteMapping("/{id}/{addressTitle}")
-    public void deleteAnAddress(@PathVariable Long id, @PathVariable String addressTitle){
-        addressService.deleteAnAddress(id,addressTitle);
+    public String deleteAnAddress(@PathVariable Long id, @PathVariable String addressTitle){
+        return addressService.deleteAnAddress(id,addressTitle);
     }
 }

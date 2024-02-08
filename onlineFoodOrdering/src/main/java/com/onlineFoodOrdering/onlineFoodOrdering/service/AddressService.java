@@ -4,6 +4,7 @@ import com.onlineFoodOrdering.onlineFoodOrdering.entity.Address;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.AddressRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.CustomerRepository;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.AddressCreateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.AddressUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.AddressResponse;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ public class AddressService {
     public Customer findCustomer(Long id){
         return customerRepository.findById(id).orElse(null);
     }
-    public void addAnAddress(Long id,Address address){
+    public void addAnAddress(Long id, AddressCreateRequest address){
         Customer customer = findCustomer(id);
 
         if(customer != null){
@@ -39,11 +40,15 @@ public class AddressService {
         }
     }
 
-    public void updateAnAddress(Long id, String addressTitle, AddressUpdateRequest request){
+    public String updateAnAddress(Long id, String addressTitle, AddressUpdateRequest request) throws Exception{
         Customer customer = findCustomer(id);
         Address existAddress = addressRepository
                 .findAddressByCustomerIdAndAddressTitle(customer.getId(),addressTitle)
                 .orElse(null);
+
+        if(existAddress == null){
+            throw new RuntimeException("There is no such an address has this title.");
+        }
 
         existAddress.setAddressTitle(request.getAddressTitle());
         existAddress.setBuildingNo(request.getBuildingNo());
@@ -54,18 +59,25 @@ public class AddressService {
         existAddress.setStreet(request.getStreet());
 
         addressRepository.save(existAddress);
+
+        return "The address is updated successfully.";
     }
 
     public String deleteAnAddress(Long id,String addressTitle){
         Customer customer = findCustomer(id);
 
+        if(customer == null){
+            return "There is no such a customer.";
+        }
+
         Address address = addressRepository
-                .findAddressByCustomerIdAndAddressTitle(customer.getId(),addressTitle)
+                .findAddressByCustomerIdAndAddressTitle(id,addressTitle)
                 .orElse(null);
 
         if(address == null){
             return "There is no such an address.";
         }else{
+            addressRepository.deleteById(address.getId());
             return "The address removed from the system.";
         }
 
@@ -79,7 +91,7 @@ public class AddressService {
 
     public List<AddressResponse> getAllTheAddressOfTheCustomer(Long id){
         Customer customer = findCustomer(id);
-        List<Address> addresses = addressRepository.findAll();
+        List<Address> addresses = addressRepository.findAddressByCustomerId(id);
         return addresses.stream().map(address -> new AddressResponse(address)).collect(Collectors.toList());
     }
 

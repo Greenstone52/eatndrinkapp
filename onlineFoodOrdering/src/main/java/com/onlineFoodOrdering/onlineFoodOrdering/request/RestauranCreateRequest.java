@@ -11,6 +11,7 @@ public class RestauranCreateRequest {
     private String name;
     private String taxNo;
     private String password;
+    private String type;
 
     //private List<Owner> owners;
 

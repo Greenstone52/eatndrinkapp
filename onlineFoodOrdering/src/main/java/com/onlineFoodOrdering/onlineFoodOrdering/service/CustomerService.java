@@ -30,7 +30,8 @@ public class CustomerService {
     }
 
     public List<CustomerResponse> getAllTheCustomers(){
-        return customerRepository.findAll().stream().map(customer -> new CustomerResponse(customer)).collect(Collectors.toList());
+        List<Customer> customers = customerRepository.findAll();
+        return customers.stream().map(customer -> new CustomerResponse(customer)).collect(Collectors.toList());
     }
 
     public Customer[] getTopNOrderedMostCustomer(int num){

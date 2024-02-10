@@ -7,26 +7,45 @@ import com.onlineFoodOrdering.onlineFoodOrdering.repository.OwnerRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.RestaurantRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.RestauranCreateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.RestaurantDeleteRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.RestaurantPasswordUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.RestaurantUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.RestaurantInfoResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.RestaurantPrivateInfoResponse;
+import com.onlineFoodOrdering.onlineFoodOrdering.response.RestaurantResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class RestaurantService {
     private RestaurantRepository restaurantRepository;
 
+    public List<RestaurantResponse> getAllTheRestaurants(@RequestParam(required = false) String type){
+
+        if(type != null){
+            return restaurantRepository.findRestaurantByType(type).stream().map(restaurant -> new RestaurantResponse(restaurant))
+                    .collect(Collectors.toList());
+        }else{
+            return restaurantRepository.findAll().stream().map(restaurant -> new RestaurantResponse(restaurant))
+                    .collect(Collectors.toList());
+        }
+    }
+
     public void addOneRestaurant(RestauranCreateRequest request){
         Restaurant restaurant = new Restaurant();
 
-        //It will be saved as encrypted form in the database
+
 
         if(!restaurantRepository.existsRestaurantByName(request.getName())){
+            //It will be saved as encrypted form in the database
             restaurant.setPassword(request.getPassword());
 
             restaurant.setName(request.getName());
+            restaurant.setType(request.getType());
             restaurant.setDistrict(request.getDistrict());
             restaurant.setProvince(request.getProvince());
             restaurant.setTaxNo(request.getTaxNo());
@@ -40,7 +59,20 @@ public class RestaurantService {
 
     }
 
-    public void changePasswordOfRestaurant(){
+    public String changePasswordOfRestaurant(Long id, RestaurantPasswordUpdateRequest request){
+        Restaurant restaurant = restaurantRepository.findById(id).orElse(null);
+
+        if(!restaurant.getPassword().equals(request.getOldPassword())){
+            return "Incorrect password";
+        } else if (restaurant.getPassword().equals(request.getNewPassword())) {
+            return "New password should not be same with beforehand.";
+        } else if(!request.getNewPassword().equals(request.getNewPassword2())){
+            return "The repetitive password is not match with the new password.";
+        }else{
+            restaurant.setPassword(request.getNewPassword());
+            restaurantRepository.save(restaurant);
+            return "The password is updated successfully.";
+        }
 
     }
 
@@ -64,6 +96,7 @@ public class RestaurantService {
         updatingRestaurant.setProvince(request.getProvince());
         updatingRestaurant.setDistrict(request.getDistrict());
         updatingRestaurant.setTaxNo(request.getTaxNo());
+        updatingRestaurant.setType(request.getType());
 
         restaurantRepository.save(updatingRestaurant);
     }
@@ -80,14 +113,27 @@ public class RestaurantService {
         return response;
     }
 
-    public double getTotalRestaurantIncome(Long restaurantId, RestaurantDeleteRequest request){
+    public String getTotalRestaurantIncome(Long restaurantId, RestaurantDeleteRequest request){
+
         Restaurant restaurant = restaurantRepository.findById(restaurantId).get();
-        return restaurant.getNetEndorsement();
+
+        if(request.getPassword().equals(restaurant.getPassword())){
+            return restaurant.getName() + " has " + restaurant.getNetEndorsement() + " net income.";
+        }else{
+            return "Incorrect password";
+        }
+
+
     }
 
-    public double getTotalRestaurantProfit(Long restaurantId, RestaurantDeleteRequest request){
+    public String getTotalRestaurantProfit(Long restaurantId, RestaurantDeleteRequest request){
         Restaurant restaurant = restaurantRepository.findById(restaurantId).get();
-        return restaurant.getNetProfit();
+
+        if(request.getPassword().equals(restaurant.getPassword())){
+            return restaurant.getName() + " has " + restaurant.getNetProfit() + " net profit.";
+        }else{
+            return "Incorrect password";
+        }
     }
 
 

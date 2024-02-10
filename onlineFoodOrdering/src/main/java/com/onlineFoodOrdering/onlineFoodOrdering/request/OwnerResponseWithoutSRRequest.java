@@ -1,7 +1,6 @@
-package com.onlineFoodOrdering.onlineFoodOrdering.response;
+package com.onlineFoodOrdering.onlineFoodOrdering.request;
 
-import com.onlineFoodOrdering.onlineFoodOrdering.request.RestaurantShareRatio;
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
+import com.onlineFoodOrdering.onlineFoodOrdering.entity.Owner;
 import com.onlineFoodOrdering.onlineFoodOrdering.enums.Gender;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -9,10 +8,9 @@ import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
-public class OwnerResponse {
+public class OwnerResponseWithoutSRRequest {
     private String firstName;
     private String lastName;
 
@@ -23,9 +21,7 @@ public class OwnerResponse {
     @DateTimeFormat(pattern = "dd/MM/yyyy")
     private LocalDate birthDate;
 
-    //private List<ShareRatio> shareRatios;
-    private List<RestaurantShareRatio> resRatios;
-    public OwnerResponse(Owner owner){
+    public OwnerResponseWithoutSRRequest(Owner owner){
         this.firstName = owner.getDetailsOfUser().getFirstName();
         this.lastName = owner.getDetailsOfUser().getLastName();
         this.gender = owner.getDetailsOfUser().getGender();

@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface ShareRatioRepository extends JpaRepository<ShareRatio, ShareRatioKey> {
     List<ShareRatio> findShareRatioByRestaurantId(Long restaurantId);
+    List<ShareRatio> findShareRatioByOwnerId(Long ownerId);
 }

@@ -1,12 +1,9 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
+import com.onlineFoodOrdering.onlineFoodOrdering.request.*;
+import com.onlineFoodOrdering.onlineFoodOrdering.compositeKey.ShareRatioKey;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.*;
-import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerDeleteRequest;
-import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerUpdateRequest;
-import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerUserCreateRequest;
-import com.onlineFoodOrdering.onlineFoodOrdering.request.SetOwnerToARestaurantRequest;
-import com.onlineFoodOrdering.onlineFoodOrdering.response.OrderResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OwnerResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.AuthenticationRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
@@ -29,10 +26,26 @@ public class OwnerService {
 
     public List<OwnerResponse> getAllOwners(){
         List<Owner> owners = ownerRepository.findAll();
-        return owners.stream().map(owner->new OwnerResponse(owner)).collect(Collectors.toList());
+        List<OwnerResponse> result = owners.stream().map(owner->new OwnerResponse(owner)).collect(Collectors.toList());
+
+        for (int i = 0; i < result.size(); i++) {
+            Owner owner = ownerRepository.findById(owners.get(i).getId()).orElse(null);
+            List<ShareRatio> shareRatio = shareRatioRepository.findShareRatioByOwnerId(owners.get(i).getId());
+            List<RestaurantShareRatio> restaurantShareRatios = new ArrayList<>();
+
+            for (int j = 0; j < shareRatio.size(); j++) {
+                RestaurantShareRatio shareRatio1 = new RestaurantShareRatio();
+                shareRatio1.setShareRatio(shareRatio.get(j).getShareRatio());
+                shareRatio1.setRestaurantName(shareRatio.get(j).getRestaurant().getName());
+                restaurantShareRatios.add(shareRatio1);
+            }
+            result.get(i).setResRatios(restaurantShareRatios);
+        }
+
+        return result;
     }
 
-    public List<OwnerResponse> getOwnersByRestaurantId(Long restaurantId){
+    public List<OwnerResponseWithoutSRRequest> getOwnersByRestaurantId(Long restaurantId){
         List<ShareRatio> shareRatios = shareRatioRepository.findShareRatioByRestaurantId(restaurantId);
         List<Owner> result = new ArrayList<>();
 
@@ -40,7 +53,7 @@ public class OwnerService {
             result.add(shareRatios.get(i).getOwner());
         }
 
-        return result.stream().map(owner->new OwnerResponse(owner)).collect(Collectors.toList());
+        return result.stream().map(owner->new OwnerResponseWithoutSRRequest(owner)).collect(Collectors.toList());
     }
 
     public List<OwnerResponse> getTopFiveOwners(){
@@ -149,7 +162,6 @@ public class OwnerService {
     public String setAnOwnerToARestaurant(Long ownerId, Long restaurantId, SetOwnerToARestaurantRequest request){
         Owner owner = ownerRepository.findById(ownerId).orElse(null);
         Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
-        ShareRatio shareRatio = new ShareRatio();
         List<ShareRatio> shareRatioList = shareRatioRepository.findShareRatioByRestaurantId(restaurantId);
         User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),Role.OWNER);
 
@@ -166,8 +178,9 @@ public class OwnerService {
 
             if(!isAlreadyPartner){
                 //restaurant.getOwners().add(owner);
-                shareRatio.setRestaurant(restaurant);
-                shareRatio.setOwner(owner);
+                ShareRatioKey sRKey = new ShareRatioKey(ownerId,restaurantId);
+                ShareRatio shareRatio = new ShareRatio(sRKey,owner,restaurant,request.getShareRatio());
+                shareRatioRepository.save(shareRatio);
                 return "The process was completed successfully.";
             }
 

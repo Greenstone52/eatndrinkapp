@@ -6,4 +6,5 @@ import lombok.Data;
 public class SetOwnerToARestaurantRequest {
     private String ownerPassword;
     private String restaurantPassword;
+    private double shareRatio;
 }

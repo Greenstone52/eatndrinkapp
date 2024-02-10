@@ -11,9 +11,12 @@ import java.util.List;
 public class RestaurantUpdateRequest {
 
     private String name;
+    private String type;
 
     private String taxNo;
 
     private String province;
     private String district;
+
+
 }

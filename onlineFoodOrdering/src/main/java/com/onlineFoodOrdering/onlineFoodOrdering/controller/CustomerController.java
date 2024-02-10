@@ -22,32 +22,35 @@ public class CustomerController {
         return customerService.getAllTheCustomers();
     }
 
+    //Denenecek
     @GetMapping("/{num}")
     public Customer[] getTopNOrderedMostCustomer(@PathVariable int num){
         return customerService.getTopNOrderedMostCustomer(num);
     }
 
+    //Denenecek
     @GetMapping("/top5")
     public Customer[] getTop5OrderedMostCustomer(){
         return customerService.getTop5OrderedMostCustomer();
     }
 
+    //Denenecek
     @GetMapping("/top10")
     public Customer[] getTop10OrderedMostCustomer(){
         return customerService.getTop10OrderedMostCustomer();
     }
 
-    @PostMapping
-    public void addACustomer(@RequestBody AuthenticationRequest request){
-        customerService.addACustomer(request);
-    }
+    //@PostMapping
+    //public void addACustomer(@RequestBody AuthenticationRequest request){
+    //    customerService.addACustomer(request);
+    //}
 
     @PutMapping("/{id}")
     public void updateCustomerInfo(@PathVariable Long id, @RequestBody CustomerUpdateRequest request){
         customerService.updateCustomerInfo(id,request);
     }
 
-    @DeleteMapping("/{id}")
+    @PostMapping("/delete/{id}")
     public String deleteCustomer(@PathVariable Long id, @RequestBody CustomerDeleteRequest request){
         return customerService.deleteCustomer(id,request);
     }

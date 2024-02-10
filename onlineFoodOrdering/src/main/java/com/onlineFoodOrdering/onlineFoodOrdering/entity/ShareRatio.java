@@ -16,14 +16,14 @@ public class ShareRatio {
     @EmbeddedId
     private ShareRatioKey id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("ownerId")
-    @JoinColumn(name = "ownerId")
+    @JoinColumn(name = "owner_id")
     private Owner owner;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("restaurantId")
-    @JoinColumn(name = "restaurantId")
+    @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;
 
     private double shareRatio;

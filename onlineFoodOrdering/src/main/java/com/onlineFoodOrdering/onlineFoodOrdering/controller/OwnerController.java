@@ -1,6 +1,8 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.controller;
 
+import com.onlineFoodOrdering.onlineFoodOrdering.entity.ShareRatio;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerDeleteRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerResponseWithoutSRRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.SetOwnerToARestaurantRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OwnerResponse;
@@ -23,7 +25,7 @@ public class OwnerController {
     }
 
     @GetMapping("/{restaurantId}")
-    public List<OwnerResponse> getOwnersByRestaurantId(@PathVariable Long restaurantId){
+    public List<OwnerResponseWithoutSRRequest> getOwnersByRestaurantId(@PathVariable Long restaurantId){
         return ownerService.getOwnersByRestaurantId(restaurantId);
     }
 
@@ -47,7 +49,7 @@ public class OwnerController {
         ownerService.addOneOwner(request);
     }
 
-    @PostMapping("/{ownerId}/{restaurantId}")
+    @PostMapping("/{ownerId}/restaurants/{restaurantId}")
     public String setAnOwnerToARestaurant(@PathVariable Long ownerId, @PathVariable Long restaurantId, @RequestBody SetOwnerToARestaurantRequest request){
         return ownerService.setAnOwnerToARestaurant(ownerId,restaurantId,request);
     }
@@ -62,7 +64,7 @@ public class OwnerController {
         return ownerService.deleteOneOwner(id,request);
     }
 
-    @GetMapping("/{nMostEarn}")
+    @GetMapping("/mostEarn/{nMostEarn}")
     public List<OwnerResponse> getTopNMostEarnedOwners(@PathVariable int nMostEarn){
         return ownerService.getTopNMostEarnedOwners(nMostEarn);
     }

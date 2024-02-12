@@ -12,6 +12,8 @@ import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class ManagerAdminService {
@@ -32,7 +34,7 @@ public class ManagerAdminService {
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setRole(request.getRole());
-        user.setUserDetailsId(managerAdminRepository.count() + 1);
+        //user.setUserDetailsId(managerAdminRepository.count() + 1);
         userRepository.save(user);
 
         if(userRepository.count() >= userCount){
@@ -48,5 +50,14 @@ public class ManagerAdminService {
 
         newManagerAdmin.setUser(user);
         managerAdminRepository.save(newManagerAdmin);
+
+        List<ManagerAdmin> managerAdmins = managerAdminRepository.findAll();
+        ManagerAdmin lastManAdmin = managerAdmins.get(managerAdmins.size()-1);
+
+        user.setUserDetailsId(lastManAdmin.getId());
+        userRepository.save(user);
+        newManagerAdmin.setUser(user);
+        managerAdminRepository.save(newManagerAdmin);
+
     }
 }

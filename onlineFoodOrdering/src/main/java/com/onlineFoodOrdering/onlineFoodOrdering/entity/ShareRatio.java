@@ -16,7 +16,7 @@ public class ShareRatio {
     @EmbeddedId
     private ShareRatioKey id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     @MapsId("ownerId")
     @JoinColumn(name = "owner_id")
     private Owner owner;

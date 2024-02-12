@@ -125,6 +125,15 @@ public class CustomerService {
         // UserId nasıl tutulacak !!! // otomatik artıyor zaten !!!
         newCustomer.setUser(user);
         customerRepository.save(newCustomer);
+
+        List<Customer> customers = customerRepository.findAll();
+        Customer lastCustomer = customers.get(customers.size()-1);
+
+        user.setUserDetailsId(lastCustomer.getId());
+        userRepository.save(user);
+        newCustomer.setUser(user);
+        customerRepository.save(newCustomer);
+
     }
 
     public void updateCustomerInfo(Long id, CustomerUpdateRequest request){
@@ -150,22 +159,22 @@ public class CustomerService {
     // The constraint about password will be added.
     public String deleteCustomer(Long id, CustomerDeleteRequest request){
 
-      Customer customer = findCustomer(id);
-      User user = userRepository.findUserByUserDetailsIdAndRole(customer.getId(),Role.CUSTOMER);
+        Customer customer = findCustomer(id);
+        User user = userRepository.findUserByUserDetailsIdAndRole(customer.getId(),Role.CUSTOMER);
 
-      if(user == null){
-          return "There is no such an user.";
-      }
+        if(user == null){
+            return "There is no such an user.";
+        }
 
-      if(user.getPassword().equals(request.getPassword())){
-          String email = user.getEmail();
-          customerRepository.deleteById(customer.getId());
-          // userRepository.deleteById(user.getId());
-          // An error may be occur here as orphanal remove is not working well.
-          return "The user whose email is "+email+" was removed from the system.";
-      }else{
-          return "The password is entered incorrect!";
-      }
+        if(user.getPassword().equals(request.getPassword())){
+            String email = user.getEmail();
+            customerRepository.deleteById(customer.getId());
+            // userRepository.deleteById(user.getId());
+            // An error may be occur here as orphanal remove is not working well.
+            return "The user whose email is "+email+" was removed from the system.";
+        }else{
+            return "The password is entered incorrect!";
+        }
 
     }
 

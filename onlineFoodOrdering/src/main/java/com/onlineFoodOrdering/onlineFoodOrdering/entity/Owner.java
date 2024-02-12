@@ -38,7 +38,7 @@ public class Owner {
     @JsonIgnore
     private List<ShareRatio> shareRatios;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER,orphanRemoval = true,cascade = CascadeType.ALL)
     @JoinColumn(name = "detailsOfUserId")
     @JsonIgnore
     private DetailsOfUser detailsOfUser;

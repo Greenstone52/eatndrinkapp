@@ -139,7 +139,7 @@ public class OwnerService {
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
         user.setRole(request.getRole());
-        user.setUserDetailsId(ownerRepository.count() + 1);
+        // user.setUserDetailsId(ownerRepository.count() + 1);
         userRepository.save(user);
 
 
@@ -155,6 +155,14 @@ public class OwnerService {
         }
 
         newOwner.setBalance(0);
+        newOwner.setUser(user);
+        ownerRepository.save(newOwner);
+
+        List<Owner> owners = ownerRepository.findAll();
+        Owner lastOwner = owners.get(owners.size()-1);
+
+        user.setUserDetailsId(lastOwner.getId());
+        userRepository.save(user);
         newOwner.setUser(user);
         ownerRepository.save(newOwner);
     }

@@ -59,7 +59,7 @@ public class OwnerController {
         return ownerService.updateOneOwner(request,id);
     }
 
-    @DeleteMapping("/{id}")
+    @PostMapping("/{id}")
     public String deleteOneOwner(@PathVariable Long id, @RequestBody OwnerDeleteRequest request){
         return ownerService.deleteOneOwner(id,request);
     }

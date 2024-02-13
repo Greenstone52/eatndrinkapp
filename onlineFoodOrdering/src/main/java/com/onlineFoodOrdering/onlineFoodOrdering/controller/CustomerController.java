@@ -2,7 +2,7 @@ package com.onlineFoodOrdering.onlineFoodOrdering.controller;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.CustomerDeleteRequest;
-import com.onlineFoodOrdering.onlineFoodOrdering.request.CustomerUpdateRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.UserUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.CustomerResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.AuthenticationRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.CustomerService;
@@ -46,7 +46,7 @@ public class CustomerController {
     //}
 
     @PutMapping("/{id}")
-    public void updateCustomerInfo(@PathVariable Long id, @RequestBody CustomerUpdateRequest request){
+    public void updateCustomerInfo(@PathVariable Long id, @RequestBody UserUpdateRequest request){
         customerService.updateCustomerInfo(id,request);
     }
 

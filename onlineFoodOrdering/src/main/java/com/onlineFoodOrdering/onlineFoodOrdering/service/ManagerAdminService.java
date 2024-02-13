@@ -1,18 +1,23 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
+import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.DetailsOfUser;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.ManagerAdmin;
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.Owner;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.User;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.DetailsOfUserRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.ManagerAdminRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.UserRepository;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.CustomerDeleteRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.UserUpdateRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.response.ManAdminResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.AuthenticationRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -20,6 +25,30 @@ public class ManagerAdminService {
     private ManagerAdminRepository managerAdminRepository;
     private UserRepository userRepository;
     private DetailsOfUserRepository detailsOfUserRepository;
+
+    public List<ManAdminResponse> getAllTheManagers(){
+        List<ManagerAdmin> managers = new ArrayList<>();
+
+        for (int i = 0; i < managerAdminRepository.count(); i++) {
+            if(managers.get(i).getUser().getRole().equals(Role.MANAGER)){
+                managers.add(managers.get(i));
+            }
+        }
+
+        return managers.stream().map(manager -> new ManAdminResponse(manager)).collect(Collectors.toList());
+    }
+
+    public List<ManAdminResponse> getAllTheAdmins(){
+        List<ManagerAdmin> managers = new ArrayList<>();
+
+        for (int i = 0; i < managerAdminRepository.count(); i++) {
+            if(managers.get(i).getUser().getRole().equals(Role.ADMIN)){
+                managers.add(managers.get(i));
+            }
+        }
+
+        return managers.stream().map(manager -> new ManAdminResponse(manager)).collect(Collectors.toList());
+    }
 
     public void addOneManagerAdmin(AuthenticationRequest request){
         ManagerAdmin newManagerAdmin = new ManagerAdmin();
@@ -58,6 +87,66 @@ public class ManagerAdminService {
         userRepository.save(user);
         newManagerAdmin.setUser(user);
         managerAdminRepository.save(newManagerAdmin);
+
+    }
+
+    public String updateOneManagerAdmin(Long id, UserUpdateRequest request){
+        ManagerAdmin manAdmin = managerAdminRepository.findById(id).orElse(null);
+
+        User user;
+
+        user = userRepository.findUserByUserDetailsIdAndRole(manAdmin.getId(),Role.MANAGER);
+        if(user == null){
+            user = userRepository.findUserByUserDetailsIdAndRole(manAdmin.getId(),Role.ADMIN);
+        }
+
+        if(manAdmin != null){
+
+            // Password will be decoded here before go to next lines.
+
+            if(user.getPassword().equals(request.getPassword())){
+                manAdmin.getDetailsOfUser().setGender(request.getGender());
+                manAdmin.getDetailsOfUser().setGsm(request.getGsm());
+                manAdmin.getDetailsOfUser().setLastName(request.getLastName());
+                manAdmin.getDetailsOfUser().setFirstName(request.getFirstName());
+                manAdmin.getDetailsOfUser().setBirthDate(request.getBirthDate());
+                detailsOfUserRepository.save(manAdmin.getDetailsOfUser());
+
+                return "The details of the owner was updated successfully.";
+            }
+
+            return "The password entered is wrong.";
+
+        }else{
+            return "There is no such an owner in the system.";
+        }
+
+    }
+
+    public String deleteManagerAdmin(Long id, CustomerDeleteRequest request){
+
+        ManagerAdmin managerAdmin = managerAdminRepository.findById(id).orElse(null);
+        User user = new User();
+
+        if(managerAdmin.getUser().getRole().equals(Role.OWNER)){
+            user = userRepository.findUserByUserDetailsIdAndRole(managerAdmin.getId(),Role.OWNER);
+        }else if(managerAdmin.getUser().getRole().equals(Role.ADMIN)){
+            user = userRepository.findUserByUserDetailsIdAndRole(managerAdmin.getId(),Role.ADMIN);
+        }
+
+        if(user == null){
+            return "There is no such an user.";
+        }
+
+        if(user.getPassword().equals(request.getPassword())){
+            String email = user.getEmail();
+            managerAdminRepository.deleteById(managerAdmin.getId());
+            // userRepository.deleteById(user.getId());
+            // An error may be occur here as orphanal remove is not working well.
+            return "The user whose email is "+email+" was removed from the system.";
+        }else{
+            return "The password is entered incorrect!";
+        }
 
     }
 }

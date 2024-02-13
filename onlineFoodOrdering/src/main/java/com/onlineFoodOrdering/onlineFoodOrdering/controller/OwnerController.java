@@ -1,10 +1,9 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.controller;
 
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.ShareRatio;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerDeleteRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerResponseWithoutSRRequest;
-import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.SetOwnerToARestaurantRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.UserUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OwnerResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.AuthenticationRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.OwnerService;
@@ -55,7 +54,7 @@ public class OwnerController {
     }
 
     @PutMapping("/{id}")
-    public String updateOneOwner(@RequestBody OwnerUpdateRequest request, @PathVariable Long id){
+    public String updateOneOwner(@RequestBody UserUpdateRequest request, @PathVariable Long id){
         return ownerService.updateOneOwner(request,id);
     }
 

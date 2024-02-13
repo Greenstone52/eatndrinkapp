@@ -209,7 +209,7 @@ public class OwnerService {
 
     }
 
-    public String updateOneOwner(OwnerUpdateRequest request, Long id){
+    public String updateOneOwner(UserUpdateRequest request, Long id){
         Owner owner = ownerRepository.findById(id).orElse(null);
         User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),Role.OWNER);
 
@@ -220,8 +220,8 @@ public class OwnerService {
             if(user.getPassword().equals(request.getPassword())){
                 owner.getDetailsOfUser().setGender(request.getGender());
                 owner.getDetailsOfUser().setGsm(request.getGsm());
-                owner.getDetailsOfUser().setLastName(request.getLastname());
-                owner.getDetailsOfUser().setFirstName(request.getFirstname());
+                owner.getDetailsOfUser().setLastName(request.getLastName());
+                owner.getDetailsOfUser().setFirstName(request.getLastName());
                 owner.getDetailsOfUser().setBirthDate(request.getBirthDate());
                 detailsOfUserRepository.save(owner.getDetailsOfUser());
 

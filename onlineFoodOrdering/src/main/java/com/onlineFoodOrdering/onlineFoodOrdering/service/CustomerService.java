@@ -136,19 +136,44 @@ public class CustomerService {
 
     }
 
-    public void updateCustomerInfo(Long id, CustomerUpdateRequest request){
-        Customer updatedCustomer = findCustomer(id);
+    public String updateCustomerInfo(Long id, UserUpdateRequest request){
+        //Customer updatedCustomer = findCustomer(id);
+//
+        //DetailsOfUser details = new DetailsOfUser();
+        //details.setBirthDate(request.getBirthdate());
+        //details.setGender(request.getGender());
+        //details.setFirstName(request.getFirstName());
+        //details.setLastName(request.getLastName());
+        //details.setGsm(request.getGsm());
+        //updatedCustomer.setDetailsOfUser(details);
+//
+        //detailsOfUserRepository.save(details);
+        //customerRepository.save(updatedCustomer);
 
-        DetailsOfUser details = new DetailsOfUser();
-        details.setBirthDate(request.getBirthdate());
-        details.setGender(request.getGender());
-        details.setFirstName(request.getFirstName());
-        details.setLastName(request.getLastName());
-        details.setGsm(request.getGsm());
-        updatedCustomer.setDetailsOfUser(details);
+        Customer customer = customerRepository.findById(id).orElse(null);
+        User user = userRepository.findUserByUserDetailsIdAndRole(customer.getId(),Role.OWNER);
 
-        detailsOfUserRepository.save(details);
-        customerRepository.save(updatedCustomer);
+        if(customer != null){
+
+            // Password will be decoded here before go to next lines.
+
+            if(user.getPassword().equals(request.getPassword())){
+                customer.getDetailsOfUser().setGender(request.getGender());
+                customer.getDetailsOfUser().setGsm(request.getGsm());
+                customer.getDetailsOfUser().setLastName(request.getLastName());
+                customer.getDetailsOfUser().setFirstName(request.getLastName());
+                customer.getDetailsOfUser().setBirthDate(request.getBirthDate());
+                detailsOfUserRepository.save(customer.getDetailsOfUser());
+
+                return "The details of the owner was updated successfully.";
+            }
+
+            return "The password entered is wrong.";
+
+        }else{
+            return "There is no such an owner in the system.";
+        }
+
     }
 
     public void updatePassword(){

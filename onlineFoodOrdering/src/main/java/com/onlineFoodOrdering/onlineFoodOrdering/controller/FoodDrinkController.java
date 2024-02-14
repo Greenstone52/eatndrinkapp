@@ -15,10 +15,10 @@ import java.util.List;
 public class FoodDrinkController {
     private FoodDrinkService foodDrinkService;
 
-    @GetMapping("/{restaurantId}")
-    public List<FoodDrink> getAllTheFoodDrinksOfTheRestaurant(@PathVariable Long restaurantId){
-        return foodDrinkService.getAllTheFoodDrinksOfTheRestaurant(restaurantId);
-    }
+    //@GetMapping("/{restaurantId}")
+    //public List<FoodDrink> getAllTheFoodDrinksOfTheRestaurant(@PathVariable Long restaurantId){
+    //    return foodDrinkService.getAllTheFoodDrinksOfTheRestaurant(restaurantId);
+    //}
 
     @GetMapping("/{menuId}")
     public List<FoodDrink> getOneMenusFoodDrink(@PathVariable Long menuId){
@@ -26,12 +26,12 @@ public class FoodDrinkController {
     }
 
     @PostMapping("/{menuId}")
-    public void addFoodDrink(@PathVariable Long menuId, @RequestBody FoodDrinkCreateRequest request) {
-        foodDrinkService.addFoodDrink(menuId,request);
+    public String addFoodDrink(@PathVariable Long menuId, @RequestBody FoodDrinkCreateRequest request) {
+        return foodDrinkService.addFoodDrink(menuId,request);
     }
 
     @PutMapping("/{foodDrinkId}")
-    public void updateFoodDrink(@PathVariable Long foodDrinkId, @RequestBody FoodDrinkUpdateRequest request){
+    public void updateFoodDrink(@PathVariable Long foodDrinkId, @RequestBody FoodDrinkCreateRequest request){
         foodDrinkService.updateFoodDrink(foodDrinkId,request);
     }
 

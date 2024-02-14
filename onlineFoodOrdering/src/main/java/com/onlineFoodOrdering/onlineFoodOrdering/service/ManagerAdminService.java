@@ -27,27 +27,29 @@ public class ManagerAdminService {
     private DetailsOfUserRepository detailsOfUserRepository;
 
     public List<ManAdminResponse> getAllTheManagers(){
-        List<ManagerAdmin> managers = new ArrayList<>();
+        List<ManagerAdmin> managers = managerAdminRepository.findAll();
+        List<ManagerAdmin> result = new ArrayList<>();
 
         for (int i = 0; i < managerAdminRepository.count(); i++) {
             if(managers.get(i).getUser().getRole().equals(Role.MANAGER)){
-                managers.add(managers.get(i));
+                result.add(managers.get(i));
             }
         }
 
-        return managers.stream().map(manager -> new ManAdminResponse(manager)).collect(Collectors.toList());
+        return result.stream().map(manager -> new ManAdminResponse(manager)).collect(Collectors.toList());
     }
 
     public List<ManAdminResponse> getAllTheAdmins(){
-        List<ManagerAdmin> managers = new ArrayList<>();
+        List<ManagerAdmin> admins = managerAdminRepository.findAll();
+        List<ManagerAdmin> result = new ArrayList<>();
 
         for (int i = 0; i < managerAdminRepository.count(); i++) {
-            if(managers.get(i).getUser().getRole().equals(Role.ADMIN)){
-                managers.add(managers.get(i));
+            if(admins.get(i).getUser().getRole().equals(Role.ADMIN)){
+                result.add(admins.get(i));
             }
         }
 
-        return managers.stream().map(manager -> new ManAdminResponse(manager)).collect(Collectors.toList());
+        return result.stream().map(admin -> new ManAdminResponse(admin)).collect(Collectors.toList());
     }
 
     public void addOneManagerAdmin(AuthenticationRequest request){
@@ -126,13 +128,14 @@ public class ManagerAdminService {
     public String deleteManagerAdmin(Long id, CustomerDeleteRequest request){
 
         ManagerAdmin managerAdmin = managerAdminRepository.findById(id).orElse(null);
-        User user = new User();
 
-        if(managerAdmin.getUser().getRole().equals(Role.OWNER)){
-            user = userRepository.findUserByUserDetailsIdAndRole(managerAdmin.getId(),Role.OWNER);
-        }else if(managerAdmin.getUser().getRole().equals(Role.ADMIN)){
-            user = userRepository.findUserByUserDetailsIdAndRole(managerAdmin.getId(),Role.ADMIN);
+        if(managerAdmin == null){
+            return "There is no such an user.";
         }
+
+        System.out.println(managerAdmin.getUser().getEmail());
+
+        User user = userRepository.findById(managerAdmin.getUser().getId()).orElse(null);
 
         if(user == null){
             return "There is no such an user.";

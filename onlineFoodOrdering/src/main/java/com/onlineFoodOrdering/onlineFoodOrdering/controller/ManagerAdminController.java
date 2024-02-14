@@ -1,5 +1,6 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.controller;
 
+import com.onlineFoodOrdering.onlineFoodOrdering.entity.ManagerAdmin;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.ManagerAdminRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.CustomerDeleteRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.UserUpdateRequest;

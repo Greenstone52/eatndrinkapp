@@ -4,9 +4,11 @@ package com.onlineFoodOrdering.onlineFoodOrdering.response;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.ManagerAdmin;
 import com.onlineFoodOrdering.onlineFoodOrdering.enums.Gender;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.time.LocalDate;
 
+@Data
 public class ManAdminResponse {
     private String firstName;
     private String lastName;

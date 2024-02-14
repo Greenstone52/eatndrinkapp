@@ -3,6 +3,7 @@ package com.onlineFoodOrdering.onlineFoodOrdering.controller;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Menu;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.MenuCreateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.MenuUpdateRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.response.MenuWithFoodDrinkResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.MenuService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +17,13 @@ public class MenuController {
     private MenuService menuService;
 
     @GetMapping("/{restaurantId}")
-    public List<Menu> getAllTheMenuOfTheRestaurant(@PathVariable Long restaurantId){
+    public List<MenuWithFoodDrinkResponse> getAllTheMenuOfTheRestaurant(@PathVariable Long restaurantId){
         return menuService.getAllTheMenuOfTheRestaurant(restaurantId);
     }
 
     @PostMapping("/{restaurantId}")
-    public void addMenu(@PathVariable Long restaurantId, @RequestBody MenuCreateRequest request){
-        menuService.addMenu(restaurantId, request);
+    public String addMenu(@PathVariable Long restaurantId, @RequestBody MenuCreateRequest request){
+        return menuService.addMenu(restaurantId, request);
     }
 
     @PutMapping("/{menuId}")

@@ -8,5 +8,4 @@ public class FoodDrinkCreateRequest {
     private String name;
     private double salesPrice;
     private double costPrice;
-    private Menu menu;
 }

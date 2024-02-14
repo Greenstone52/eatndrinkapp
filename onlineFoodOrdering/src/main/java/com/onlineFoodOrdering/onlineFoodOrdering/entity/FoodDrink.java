@@ -11,7 +11,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table(name = "food")
+@Table(name = "foodDrink")
 @Entity
 public class FoodDrink {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +24,7 @@ public class FoodDrink {
     @JsonIgnore
     private Menu menu;
 
+    @Column(unique = true)
     private String name;
 
     private double salesPrice;
@@ -35,6 +36,6 @@ public class FoodDrink {
         this.name = name;
         this.salesPrice = salesPrice;
         this.costPrice = costPrice;
-        this.profit = salesPrice - costPrice;
+        this.profit = this.salesPrice - this.costPrice;
     }
 }

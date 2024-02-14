@@ -22,67 +22,62 @@ public class FoodDrinkService {
     private MenuRepository menuRepository;
     private RestaurantRepository restaurantRepository;
 
-    public List<FoodDrink> getAllTheFoodDrinksOfTheRestaurant(Long restaurantId){
-        List<FoodDrink> foodDrinkList = new ArrayList<>();
-        List<Menu> menuList = new ArrayList<>();
-
-        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
-
-        // Finding the menus of the specified restaurant
-        for (Long i = 0L; i < menuRepository.count(); i++) {
-            if(menuRepository.findById(i).get().getRestaurant().equals(restaurant)){
-                menuList.add(menuRepository.findById(i).get());
-            }
-        }
-
-        int count = 0;
-        // Finding the foodDrink of the menus
-        for (Long i = 0L; i < menuList.size(); i++) {
-            Menu menu = menuList.get(count);
-
-            for (Long j = 0L; j < foodDrinkRepository.count(); j++) {
-                if(foodDrinkRepository.findById(j).get().getMenu().equals(menu)){
-                    foodDrinkList.add(foodDrinkRepository.findById(j).get());
-                }
-            }
-
-            count++;
-        }
-
-        return foodDrinkList;
-    }
+    //public List<FoodDrink> getAllTheFoodDrinksOfTheRestaurant(Long restaurantId){
+    //    List<FoodDrink> foodDrinkList = new ArrayList<>();
+    //    List<Menu> menuList = new ArrayList<>();
+//
+    //    Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+//
+    //    // Finding the menus of the specified restaurant
+    //    for (Long i = 0L; i < menuRepository.count(); i++) {
+    //        if(menuRepository.findById(i).get().getRestaurant().equals(restaurant)){
+    //            menuList.add(menuRepository.findById(i).get());
+    //        }
+    //    }
+//
+    //    int count = 0;
+    //    // Finding the foodDrink of the menus
+    //    for (Long i = 0L; i < menuList.size(); i++) {
+    //        Menu menu = menuList.get(count);
+//
+    //        for (Long j = 0L; j < foodDrinkRepository.count(); j++) {
+    //            if(foodDrinkRepository.findById(j).get().getMenu().equals(menu)){
+    //                foodDrinkList.add(foodDrinkRepository.findById(j).get());
+    //            }
+    //        }
+//
+    //        count++;
+    //    }
+//
+    //    return foodDrinkList;
+    //}
 
     public List<FoodDrink> getOneMenusFoodDrink(Long menuId){
-        List<FoodDrink> foodDrinkList = new ArrayList<>();
-
-        for (Long i = 0L; i < foodDrinkRepository.count(); i++) {
-            if (foodDrinkRepository.findById(i).get().getMenu().equals(menuRepository.findById(menuId))) {
-                foodDrinkList.add(foodDrinkRepository.findById(i).get());
-            }
-        }
-
-        return foodDrinkList;
+        return foodDrinkRepository.findFoodDrinkByMenuId(menuId);
     }
 
-    public void addFoodDrink(Long menuId, FoodDrinkCreateRequest request){
-        FoodDrink foodDrink = new FoodDrink();
+    public String addFoodDrink(Long menuId, FoodDrinkCreateRequest request){
+
 
         Menu menu = menuRepository.findById(menuId).orElse(null);
-        foodDrink.setMenu(menu);
-        foodDrink.setName(request.getName());
-        foodDrink.setCostPrice(request.getCostPrice());
-        foodDrink.setSalesPrice(request.getSalesPrice());
 
-        foodDrinkRepository.save(foodDrink);
+        if(menu == null){
+            return "There is no such a menu to add a food or drink.";
+        }else{
+            FoodDrink foodDrink = new FoodDrink(menu,request.getName(),request.getSalesPrice(),request.getCostPrice());
+            foodDrinkRepository.save(foodDrink);
+            return "The food/drink is added to system.";
+        }
+
     }
 
-    public void updateFoodDrink(Long foodDrinkId,FoodDrinkUpdateRequest request){
+    public void updateFoodDrink(Long foodDrinkId,FoodDrinkCreateRequest request){
 
         FoodDrink foodDrink = foodDrinkRepository.findById(foodDrinkId).orElse(null);
         foodDrink.setSalesPrice(request.getSalesPrice());
         foodDrink.setCostPrice(request.getCostPrice());
         foodDrink.setName(request.getName());
-
+        foodDrink.setProfit(request.getSalesPrice()-request.getCostPrice());
         foodDrinkRepository.save(foodDrink);
     }
 

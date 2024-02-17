@@ -25,6 +25,7 @@ public class OrderService {
     private CardRepository cardRepository;
     private ShareRatioRepository shareRatioRepository;
     private OwnerRepository ownerRepository;
+    private MenuRepository menuRepository;
 
     public Customer findCustomer(Long id){
         return customerRepository.findById(id).orElse(null);
@@ -50,10 +51,12 @@ public class OrderService {
             if(foodDrink != null && restaurant != null){
                 if(card.getBalance() >= foodDrink.getSalesPrice()){
                     Order order = new Order();
+                    Menu menu = menuRepository.findById(request.getMenuId()).orElse(null);
+                    FoodDrink foodDrink1 = foodDrinkRepository.findById(request.getFoodDrinkId()).orElse(null);
                     order.setCustomer(customer);
                     order.setRestaurant(restaurant);
-                    order.setMenuId(request.getMenuId());
-                    order.setFoodDrinkId(request.getFoodDrinkId());
+                    order.setMenu(menu);
+                    order.setFoodDrink(foodDrink1);
                     orderRepository.save(order);
 
                     // Money is added to the bank account of the restaurant
@@ -68,7 +71,6 @@ public class OrderService {
                         Owner owner = ownerRepository.findById(shareRatioList.get(i).getOwner().getId()).orElse(null);
                         owner.setBalance(owner.getBalance() + foodDrink.getProfit()*shareRatio);
                         ownerRepository.save(owner);
-
                     }
 
                     return "Your order is processed on the system.";
@@ -82,37 +84,39 @@ public class OrderService {
     }
 
     public List<OrderResponse> getAllTheOrdersOfTheCustomer(Long id){
-        Customer customer = findCustomer(id);
-        List<Order> orders = orderRepository.findAll();
-
-        ArrayList<Order> customerOrders = new ArrayList<>();
-
-        for (int i = 0; i < orders.size(); i++) {
-            if(orders.get(i).getCustomer() == customer){
-               customerOrders.add(orders.get(i));
-            }
-        }
-
-        return customerOrders.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());
+        //Customer customer = findCustomer(id);
+        //List<Order> orders = orderRepository.findAll();
+//
+        //ArrayList<Order> customerOrders = new ArrayList<>();
+//
+        //for (int i = 0; i < orders.size(); i++) {
+        //    if(orders.get(i).getCustomer() == customer){
+        //       customerOrders.add(orders.get(i));
+        //    }
+        //}
+        List<Order> ordersList = orderRepository.findOrdersByCustomerId(id);
+        return ordersList.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());
+        //return customerOrders.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());
     }
 
     public List<OrderResponse> getAllTheOrdersOfTheRestaurant(Long restaurantId){
-        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
-        List<Order> orders = orderRepository.findAll();
-
-        ArrayList<Order> restaurantOrders = new ArrayList<>();
-
-        for(int i = 0; i < orders.size(); i++) {
-            if(orders.get(i).getRestaurant() == restaurant){
-                restaurantOrders.add(orders.get(i));
-            }
-        }
-
-        return restaurantOrders.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());
+        //Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+        //List<Order> orders = orderRepository.findAll();
+//
+        //ArrayList<Order> restaurantOrders = new ArrayList<>();
+//
+        //for(int i = 0; i < orders.size(); i++) {
+        //    if(orders.get(i).getRestaurant() == restaurant){
+        //        restaurantOrders.add(orders.get(i));
+        //    }
+        //}
+//
+        //return restaurantOrders.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());
+        List<Order> ordersList = orderRepository.findOrdersByRestaurantId(restaurantId);
+        return ordersList.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());
     }
 
     public String deleteAnOrder(Long id,Long orderId) {
-        Customer customer = findCustomer(id);
 
         LocalDateTime currentDate = LocalDateTime.now();
 
@@ -123,11 +127,11 @@ public class OrderService {
             Duration duration = Duration.between(order.getDate(), currentDate);
             long minutesDifference = duration.toMinutes();
 
-            if(minutesDifference < 15){
+            if(minutesDifference < 1){
                 orderRepository.deleteById(orderId);
                 return "Your order was deleted successfully.";
             }else{
-                return "It is too late to delete the order. 15 minutes lasted.";
+                return "It is too late to delete the order. 1 minutes lasted.";
             }
 
         } else if (order != null && !(order.getCustomer().getId().equals(id))) {
@@ -138,20 +142,21 @@ public class OrderService {
     }
 
     public String updateTheOrder(Long id, Long orderId, OrderUpdateRequest request){
-        Customer customer = findCustomer(id);
 
         LocalDateTime currentDate = LocalDateTime.now();
 
         Order order = orderRepository.findById(orderId).orElse(null);
 
-        if (order != null && order.getCustomer().getId().equals(customer.getId())) {
+        if (order != null && order.getCustomer().getId().equals(id)) {
 
             Duration duration = Duration.between(order.getDate(), currentDate);
             long minutesDifference = duration.toMinutes();
 
             if(minutesDifference <15){
-                order.setMenuId(request.getMenuId());
-                order.setFoodDrinkId(request.getFoodDrinkId());
+                Menu menu = menuRepository.findById(request.getMenuId()).orElse(null);
+                FoodDrink foodDrink = foodDrinkRepository.findById(request.getFoodDrinkId()).orElse(null);
+                order.setMenu(menu);
+                order.setFoodDrink(foodDrink);
                 orderRepository.save(order);
 
                 return "Your order was updated successfully.";

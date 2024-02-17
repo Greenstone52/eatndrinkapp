@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order,Long> {
     Optional<Order> findOrderByCustomerIdAndRestaurantId(Long customerId, Long restaurantId);
     List<Order> findOrdersByCustomerId(Long customerId);
+    List<Order> findOrdersByRestaurantId(Long restaurantId);
 }

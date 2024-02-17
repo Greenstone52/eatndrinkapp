@@ -15,13 +15,13 @@ import java.util.List;
 public class OrderController {
     private OrderService orderService;
 
-    @GetMapping("/{id}")
+    @GetMapping("/customers/{id}")
     public List<OrderResponse> getAllTheOrdersOfTheCustomer(@PathVariable Long id){
         return orderService.getAllTheOrdersOfTheCustomer(id);
     }
 
-    @GetMapping("/{restaurantId}")
-    public List<OrderResponse> getAllTheOrdersOfTheRestaurant(Long restaurantId){
+    @GetMapping("/restaurants/{restaurantId}")
+    public List<OrderResponse> getAllTheOrdersOfTheRestaurant(@PathVariable Long restaurantId){
         return orderService.getAllTheOrdersOfTheRestaurant(restaurantId);
     }
 
@@ -30,13 +30,13 @@ public class OrderController {
         return orderService.setAnOrder(id,request,cardNumber);
     }
 
-    @PutMapping("/{id}/{orderId}")
-    public String updateTheOrder(@PathVariable Long id,@PathVariable Long orderId,@RequestBody OrderUpdateRequest request){
-        return orderService.updateTheOrder(id,orderId,request);
+    @PutMapping("/{customerId}/{orderId}")
+    public String updateTheOrder(@PathVariable Long customerId,@PathVariable Long orderId,@RequestBody OrderUpdateRequest request){
+        return orderService.updateTheOrder(customerId,orderId,request);
     }
 
     @DeleteMapping("/{id}/{orderId}")
-    public String deleteAnOrder(Long id,Long orderId) {
+    public String deleteAnOrder(@PathVariable Long id,@PathVariable Long orderId) {
         return orderService.deleteAnOrder(id,orderId);
     }
 }

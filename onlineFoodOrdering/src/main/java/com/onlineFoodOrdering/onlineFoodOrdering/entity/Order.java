@@ -33,9 +33,17 @@ public class Order {
     @JsonIgnore
     private Restaurant restaurant;
 
-    private Long menuId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "menuId")
+    @JsonIgnore
+    private Menu menu;
 
-    private Long foodDrinkId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "foodDrinkId")
+    @JsonIgnore
+    private FoodDrink foodDrink;
 
     private LocalDateTime date = LocalDateTime.now();
 }

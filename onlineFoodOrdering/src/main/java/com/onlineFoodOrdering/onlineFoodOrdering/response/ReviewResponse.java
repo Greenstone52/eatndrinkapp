@@ -5,12 +5,15 @@ import lombok.Data;
 
 @Data
 public class ReviewResponse {
+    private String customerName;
     private String restaurantName;
     private String title;
     private String text;
     private short point;
 
     public ReviewResponse(Review review){
+        customerName = review.getCustomer().getDetailsOfUser().getFirstName().substring(0,3) +"*** "
+                + review.getCustomer().getDetailsOfUser().getLastName().substring(0,3) + "***";
         restaurantName = review.getRestaurant().getName();
         title = review.getTitle();
         text = review.getText();

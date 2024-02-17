@@ -8,12 +8,15 @@ import com.onlineFoodOrdering.onlineFoodOrdering.repository.MenuRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.RestaurantRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.MenuCreateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.MenuUpdateRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.response.FoodDrinkResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.MenuWithFoodDrinkResponse;
+import com.onlineFoodOrdering.onlineFoodOrdering.response.MenuWithFoodDrinkResponseForCustomer;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -45,8 +48,7 @@ public class MenuService {
     }
 
     public List<MenuWithFoodDrinkResponse> getAllTheMenuOfTheRestaurant(Long restaurantId){
-        
-        List<Long> menuIDs = new ArrayList<>();
+
         List<Menu> menus = menuRepository.findMenuByRestaurantId(restaurantId);
         List<MenuWithFoodDrinkResponse> responseList = new ArrayList<>();
 
@@ -59,6 +61,22 @@ public class MenuService {
 
         return responseList;
         //return menuRepository.findMenuByRestaurantId(restaurantId);
+    }
+
+    public List<MenuWithFoodDrinkResponseForCustomer> getAllTheMenuOfTheRestaurantForCustomers(Long restaurantId){
+
+        List<Menu> menus = menuRepository.findMenuByRestaurantId(restaurantId);
+        List<MenuWithFoodDrinkResponseForCustomer> responseList = new ArrayList<>();
+
+        for (int i = 0; i < menus.size(); i++) {
+            MenuWithFoodDrinkResponseForCustomer response = new MenuWithFoodDrinkResponseForCustomer(menus.get(i));
+            List<FoodDrink> foodDrinkList = foodDrinkRepository.findFoodDrinkByMenuId(menus.get(i).getId());
+
+            response.setFoodDrinkListResponse(foodDrinkList.stream().map(foodDrinkResponse -> new FoodDrinkResponse(foodDrinkResponse)).collect(Collectors.toList()));
+            responseList.add(response);
+        }
+
+        return responseList;
     }
 
     public void deleteMenu(Long menuId){

@@ -35,15 +35,8 @@ public class OrderService {
         Customer customer = findCustomer(id);
         Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId()).orElse(null);
         FoodDrink foodDrink = foodDrinkRepository.findById(request.getFoodDrinkId()).orElse(null);
-        List<Card> cards = cardRepository.findCardByCustomerId(id);
-        Card card = new Card();
 
-        for (int i = 0; i < cards.size(); i++) {
-            if(cards.get(i).getCardNumber().equals(cardNumber)){
-                card = cards.get(i);
-                break;
-            }
-        }
+        Card card = cardRepository.findCardByCustomerIdAndCardNumber(id,cardNumber).orElse(null);
 
         if(card == null){
             return "You have no such a card has this card number.";
@@ -71,14 +64,16 @@ public class OrderService {
                         Owner owner = ownerRepository.findById(shareRatioList.get(i).getOwner().getId()).orElse(null);
                         owner.setBalance(owner.getBalance() + foodDrink.getProfit()*shareRatio);
                         ownerRepository.save(owner);
-                    }
 
+                    }
+                    card.setBalance(card.getBalance()- foodDrink.getSalesPrice());
+                    cardRepository.save(card);
                     return "Your order is processed on the system.";
                 }
-                return "You have no enough balance for this order";
+                return "You have no enough balance for this order.";
             }
 
-            return "There is a problem here. Please check the inputs";
+            return "There is a problem here. Please check the inputs.";
         }
 
     }

@@ -25,7 +25,7 @@ public class OrderController {
         return orderService.getAllTheOrdersOfTheRestaurant(restaurantId);
     }
 
-    @PostMapping("/{id}&{cardNumber}")
+    @PostMapping("/{id}/{cardNumber}")
     public String setAnOrder(@PathVariable Long id, @RequestBody OrderCreateRequest request,@PathVariable String cardNumber){
         return orderService.setAnOrder(id,request,cardNumber);
     }

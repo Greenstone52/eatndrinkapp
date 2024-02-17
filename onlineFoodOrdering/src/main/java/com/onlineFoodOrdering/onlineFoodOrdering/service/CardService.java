@@ -33,6 +33,10 @@ public class CardService {
     public void setACard(Long id, CardCreateRequest card){
         Customer customer = findCustomer(id);
 
+        if(customer == null){
+            return;
+        }
+
         Card newCard = new Card();
         newCard.setCardNumber(card.getCardNumber());
         newCard.setCvc(card.getCvc());

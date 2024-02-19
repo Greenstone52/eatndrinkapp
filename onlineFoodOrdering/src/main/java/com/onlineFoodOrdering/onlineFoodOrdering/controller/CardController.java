@@ -18,24 +18,24 @@ public class CardController {
 
     private CardService cardService;
 
-    @GetMapping("/{id}")
-    public List<CardResponse> getAllTheCardsOfTheCustomer(@PathVariable Long id){
-        return cardService.getAllTheCardsOfTheCustomer(id);
+    @GetMapping("/{customerId}")
+    public List<CardResponse> getAllTheCardsOfTheCustomer(@PathVariable Long customerId){
+        return cardService.getAllTheCardsOfTheCustomer(customerId);
     }
 
-    @PostMapping("/{id}")
-    public void setACard(@PathVariable Long id, @RequestBody CardCreateRequest card){
-        cardService.setACard(id,card);
+    @PostMapping("/{customerId}")
+    public void setACard(@PathVariable Long customerId, @RequestBody CardCreateRequest card){
+        cardService.setACard(customerId,card);
     }
 
-    @PutMapping("/{id}/{cardNumber}")
-    public void updateSelectedCard(@PathVariable Long id,@PathVariable String cardNumber,@RequestBody CardCreateRequest updateCard){
-        cardService.updateSelectedCard(id,cardNumber,updateCard);
+    @PutMapping("/{customerId}/{cardNumber}")
+    public void updateSelectedCard(@PathVariable Long customerId,@PathVariable String cardNumber,@RequestBody CardCreateRequest updateCard){
+        cardService.updateSelectedCard(customerId,cardNumber,updateCard);
     }
 
-    @PostMapping("/delete/{id}")
-    public String deleteACard(@PathVariable Long id, @RequestBody CardDeleteRequest request){
-        return cardService.deleteACard(id,request);
+    @PostMapping("/delete/{customerId}")
+    public String deleteACard(@PathVariable Long customerId, @RequestBody CardDeleteRequest request){
+        return cardService.deleteACard(customerId,request);
     }
 
 }

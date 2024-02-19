@@ -4,7 +4,6 @@ import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.CustomerDeleteRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.UserUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.CustomerResponse;
-import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.AuthenticationRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.CustomerService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +13,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/customers")
-public class CustomerController {
+public class CustomerController2 {
     private CustomerService customerService;
 
     @GetMapping

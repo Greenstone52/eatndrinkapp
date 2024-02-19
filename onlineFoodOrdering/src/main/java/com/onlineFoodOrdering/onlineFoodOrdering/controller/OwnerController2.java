@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/owners")
-public class OwnerController {
+public class OwnerController2 {
     private OwnerService ownerService;
 
     @GetMapping

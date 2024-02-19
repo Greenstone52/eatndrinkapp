@@ -84,7 +84,7 @@ public class CardService {
         //    return "There is no card has this card number";
         //}
 
-        Customer customer = findCustomer(id);
+        //Customer customer = findCustomer(id);
 
         Card card = cardRepository.findCardByCustomerIdAndCardNumber(id, request.getCardNumber()).orElse(null);
 

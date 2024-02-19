@@ -31,13 +31,13 @@ public class AddressController {
         addressService.addAnAddress(customerId,address);
     }
 
-    @PutMapping("/{id}/{addressTitle}")
-    public String updateAnAddress(@PathVariable Long id, @PathVariable String addressTitle, @RequestBody AddressUpdateRequest request) throws Exception{
-        return addressService.updateAnAddress(id,addressTitle,request);
+    @PutMapping("/{customerId}/{addressTitle}")
+    public String updateAnAddress(@PathVariable Long customerId, @PathVariable String addressTitle, @RequestBody AddressUpdateRequest request) throws Exception{
+        return addressService.updateAnAddress(customerId,addressTitle,request);
     }
 
-    @DeleteMapping("/{id}/{addressTitle}")
-    public String deleteAnAddress(@PathVariable Long id, @PathVariable String addressTitle){
-        return addressService.deleteAnAddress(id,addressTitle);
+    @DeleteMapping("/{customerId}/{addressTitle}")
+    public String deleteAnAddress(@PathVariable Long customerId, @PathVariable String addressTitle){
+        return addressService.deleteAnAddress(customerId,addressTitle);
     }
 }

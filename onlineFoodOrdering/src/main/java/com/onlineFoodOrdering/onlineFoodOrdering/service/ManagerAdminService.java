@@ -1,6 +1,5 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.DetailsOfUser;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.ManagerAdmin;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.User;
@@ -10,9 +9,10 @@ import com.onlineFoodOrdering.onlineFoodOrdering.repository.UserRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.CustomerDeleteRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.UserUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.ManAdminResponse;
-import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.AuthenticationRequest;
-import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
+import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.RegisterRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.security.user.Role;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,6 +25,7 @@ public class ManagerAdminService {
     private ManagerAdminRepository managerAdminRepository;
     private UserRepository userRepository;
     private DetailsOfUserRepository detailsOfUserRepository;
+    private PasswordEncoder passwordEncoder;
 
     public List<ManAdminResponse> getAllTheManagers(){
         List<ManagerAdmin> managers = managerAdminRepository.findAll();
@@ -52,7 +53,7 @@ public class ManagerAdminService {
         return result.stream().map(admin -> new ManAdminResponse(admin)).collect(Collectors.toList());
     }
 
-    public void addOneManagerAdmin(AuthenticationRequest request){
+    public void addOneManagerAdmin(RegisterRequest request){
         ManagerAdmin newManagerAdmin = new ManagerAdmin();
         User user = new User();
         DetailsOfUser detailsOfUser = new DetailsOfUser();
@@ -63,7 +64,7 @@ public class ManagerAdminService {
         Long userCount = userRepository.count();
 
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
         //user.setUserDetailsId(managerAdminRepository.count() + 1);
         userRepository.save(user);

@@ -1,6 +1,5 @@
-package com.onlineFoodOrdering.onlineFoodOrdering.controllerRoles;
+package com.onlineFoodOrdering.onlineFoodOrdering.controller;
 
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.*;

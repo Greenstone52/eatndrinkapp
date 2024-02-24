@@ -3,18 +3,13 @@ package com.onlineFoodOrdering.onlineFoodOrdering.service;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.*;
-import com.onlineFoodOrdering.onlineFoodOrdering.response.AddressResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.CustomerResponse;
-import com.onlineFoodOrdering.onlineFoodOrdering.response.OrderResponse;
-import com.onlineFoodOrdering.onlineFoodOrdering.response.ReviewResponse;
-import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.AuthenticationRequest;
-import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
+import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.RegisterRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.security.user.Role;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +19,7 @@ public class CustomerService {
     private CustomerRepository customerRepository;
     private UserRepository userRepository;
     private DetailsOfUserRepository detailsOfUserRepository;
+    private PasswordEncoder passwordEncoder;
 
     public Customer findCustomer(Long id){
         return customerRepository.findById(id).orElse(null);
@@ -96,7 +92,7 @@ public class CustomerService {
     //    customerRepository.save(newCustomer);
     //}
 
-    public void addACustomer(AuthenticationRequest request){
+    public void addACustomer(RegisterRequest request){
         Customer newCustomer = new Customer();
         User user = new User();
 
@@ -104,9 +100,9 @@ public class CustomerService {
 
         //user's data
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(Role.CUSTOMER);
-        user.setUserDetailsId(customerRepository.count() + 1);
+        //user.setUserDetailsId(customerRepository.count() + 1);
         userRepository.save(user);
 
         // This means a user was enrolled

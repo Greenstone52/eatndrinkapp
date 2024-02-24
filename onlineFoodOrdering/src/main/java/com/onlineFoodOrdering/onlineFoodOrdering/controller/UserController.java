@@ -1,4 +1,4 @@
-package com.onlineFoodOrdering.onlineFoodOrdering.controllerRoles;
+package com.onlineFoodOrdering.onlineFoodOrdering.controller;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.FoodDrink;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.MenuWithFoodDrinkResponseForCustomer;

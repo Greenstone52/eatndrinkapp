@@ -4,30 +4,33 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Entity
 @Table(name = "token")
 public class Token {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private Long id;
-    @Column(unique = true)
-    private String token;
-    private boolean expired;
-    private boolean revoked;
-    @Enumerated(EnumType.STRING)
-    private TokenType tokenType = TokenType.BEARER;
+    public Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(unique = true)
+    public String token;
+
+    public boolean expired;
+    public boolean revoked;
+
+    @Enumerated(EnumType.STRING)
+    public TokenType tokenType = TokenType.BEARER;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
-    private User user;
+    public User user;
 }

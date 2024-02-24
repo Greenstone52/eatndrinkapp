@@ -1,7 +1,6 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 

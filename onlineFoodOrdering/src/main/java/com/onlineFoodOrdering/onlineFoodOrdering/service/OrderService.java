@@ -70,7 +70,7 @@ public class OrderService {
                     cardRepository.save(card);
                     return "Your order is processed on the system.";
                 }
-                return "You have no enough balance for this order.";
+                return "You have not enough balance for this order.";
             }
 
             return "There is a problem here. Please check the inputs.";

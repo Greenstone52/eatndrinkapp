@@ -1,4 +1,4 @@
-package com.onlineFoodOrdering.onlineFoodOrdering.controllerRoles;
+package com.onlineFoodOrdering.onlineFoodOrdering.controller;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerResponseWithoutSRRequest;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/manager")
+@RequestMapping("/api/v1/management")
 @AllArgsConstructor
 public class ManagerController {
 
@@ -57,21 +57,6 @@ public class ManagerController {
     @GetMapping("/owners/{restaurantId}")
     public List<OwnerResponseWithoutSRRequest> getOwnersByRestaurantId(@PathVariable Long restaurantId){
         return ownerService.getOwnersByRestaurantId(restaurantId);
-    }
-
-    @GetMapping("/owners/top5")
-    public List<OwnerResponse> getTopFiveOwners(){
-        return ownerService.getTopFiveOwners();
-    }
-
-    @GetMapping("/owners/top10")
-    public List<OwnerResponse> getTop10Owners(){
-        return ownerService.getTop10Owners();
-    }
-
-    @GetMapping("/owners/{topN}")
-    public List<OwnerResponse> getTopNOwners(@PathVariable Long topN){
-        return ownerService.getTopNOwners(topN);
     }
 
 }

@@ -1,6 +1,5 @@
-package com.onlineFoodOrdering.onlineFoodOrdering.controllerRoles;
+package com.onlineFoodOrdering.onlineFoodOrdering.controller;
 
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.FoodDrink;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.MenuWithFoodDrinkResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OrderResponse;
@@ -82,7 +81,7 @@ public class OwnerController {
     }
 
     // Restaurant
-    @PostMapping
+    @PostMapping("/restaurants")
     public void addOneRestaurant(@RequestBody RestauranCreateRequest request) {
         restaurantService.addOneRestaurant(request);
     }
@@ -102,12 +101,12 @@ public class OwnerController {
         return restaurantService.getRestaurantPrivateInfo(restaurantId);
     }
 
-    @PostMapping("/restaurants/{restaurantId}/income")
+    @GetMapping("/restaurants/{restaurantId}/income")
     public String getTotalRestaurantIncome(@PathVariable Long restaurantId, @RequestBody RestaurantDeleteRequest request){
         return restaurantService.getTotalRestaurantIncome(restaurantId,request);
     }
 
-    @PostMapping("/restaurants/{restaurantId}/profit")
+    @GetMapping("/restaurants/{restaurantId}/profit")
     public String getTotalRestaurantProfit(@PathVariable Long restaurantId, @RequestBody RestaurantDeleteRequest request){
         return restaurantService.getTotalRestaurantProfit(restaurantId,request);
     }

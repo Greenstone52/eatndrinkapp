@@ -3,6 +3,7 @@ package com.onlineFoodOrdering.onlineFoodOrdering.entity;
 import com.onlineFoodOrdering.onlineFoodOrdering.enums.Gender;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 @Entity
 @Table(name = "details_of_user")
 public class DetailsOfUser{

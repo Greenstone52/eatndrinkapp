@@ -5,9 +5,10 @@ import com.onlineFoodOrdering.onlineFoodOrdering.compositeKey.ShareRatioKey;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OwnerResponse;
-import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.AuthenticationRequest;
-import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
+import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.RegisterRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.security.user.Role;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class OwnerService {
     private ShareRatioRepository shareRatioRepository;
     private UserRepository userRepository;
     private DetailsOfUserRepository detailsOfUserRepository;
+    private PasswordEncoder passwordEncoder;
 
     public List<OwnerResponse> getAllOwners(){
         List<Owner> owners = ownerRepository.findAll();
@@ -126,7 +128,7 @@ public class OwnerService {
     //    ownerRepository.save(newOwner);
     //}
 
-    public void addOneOwner(AuthenticationRequest request){
+    public void addOneOwner(RegisterRequest request){
         Owner newOwner = new Owner();
         User user = new User();
         DetailsOfUser detailsOfUser = new DetailsOfUser();
@@ -137,7 +139,7 @@ public class OwnerService {
         Long userCount = userRepository.count();
 
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
         // user.setUserDetailsId(ownerRepository.count() + 1);
         userRepository.save(user);

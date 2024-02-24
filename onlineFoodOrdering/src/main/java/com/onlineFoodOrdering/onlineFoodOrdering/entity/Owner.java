@@ -1,12 +1,9 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @AllArgsConstructor

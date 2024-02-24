@@ -1,8 +1,7 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.request;
 
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.DetailsOfUser;
 import com.onlineFoodOrdering.onlineFoodOrdering.enums.Gender;
-import com.onlineFoodOrdering.onlineFoodOrdering.security.enums.Role;
+import com.onlineFoodOrdering.onlineFoodOrdering.security.user.Role;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 

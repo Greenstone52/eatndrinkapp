@@ -6,7 +6,6 @@ import com.onlineFoodOrdering.onlineFoodOrdering.entity.User;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.DetailsOfUserRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.ManagerAdminRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.UserRepository;
-import com.onlineFoodOrdering.onlineFoodOrdering.request.CustomerDeleteRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.UserUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.ManAdminResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.RegisterRequest;
@@ -96,37 +95,38 @@ public class ManagerAdminService {
     public String updateOneManagerAdmin(Long id, UserUpdateRequest request){
         ManagerAdmin manAdmin = managerAdminRepository.findById(id).orElse(null);
 
-        User user;
-
-        user = userRepository.findUserByUserDetailsIdAndRole(manAdmin.getId(),Role.MANAGER);
-        if(user == null){
-            user = userRepository.findUserByUserDetailsIdAndRole(manAdmin.getId(),Role.ADMIN);
-        }
+        boolean isAdmin = false;
+        User user = new User();
 
         if(manAdmin != null){
+            user = userRepository.findUserByUserDetailsIdAndRole(manAdmin.getId(),Role.MANAGER);
 
-            // Password will be decoded here before go to next lines.
+            if(user == null){
+                user = userRepository.findUserByUserDetailsIdAndRole(manAdmin.getId(),Role.ADMIN);
+                isAdmin = true;
+            }
 
-            if(user.getPassword().equals(request.getPassword())){
+            if(user != null){
                 manAdmin.getDetailsOfUser().setGender(request.getGender());
                 manAdmin.getDetailsOfUser().setGsm(request.getGsm());
                 manAdmin.getDetailsOfUser().setLastName(request.getLastName());
                 manAdmin.getDetailsOfUser().setFirstName(request.getFirstName());
                 manAdmin.getDetailsOfUser().setBirthDate(request.getBirthDate());
                 detailsOfUserRepository.save(manAdmin.getDetailsOfUser());
-
-                return "The details of the owner was updated successfully.";
+                return isAdmin? "The details of the admin was updated successfully."
+                        : "The details of the manager was updated successfully.";
+            }else{
+                return "There is no such a person in the system.";
             }
-
-            return "The password entered is wrong.";
-
         }else{
-            return "There is no such an owner in the system.";
+            return "There is no such a person in the system.";
         }
+
+
 
     }
 
-    public String deleteManagerAdmin(Long id, CustomerDeleteRequest request){
+    public String deleteManagerAdmin(Long id){
 
         ManagerAdmin managerAdmin = managerAdminRepository.findById(id).orElse(null);
 
@@ -140,17 +140,12 @@ public class ManagerAdminService {
 
         if(user == null){
             return "There is no such an user.";
-        }
-
-        if(user.getPassword().equals(request.getPassword())){
+        }else{
             String email = user.getEmail();
             managerAdminRepository.deleteById(managerAdmin.getId());
             // userRepository.deleteById(user.getId());
             // An error may be occur here as orphanal remove is not working well.
             return "The user whose email is "+email+" was removed from the system.";
-        }else{
-            return "The password is entered incorrect!";
         }
-
     }
 }

@@ -1,16 +1,16 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.controller;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerResponseWithoutSRRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.CustomerResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OwnerResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.CustomerService;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.OwnerService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,19 +31,19 @@ public class ManagerController {
 
     //Denenecek
     @GetMapping("/customers/{num}")
-    public Customer[] getTopNOrderedMostCustomer(@PathVariable int num){
+    public List<CustomerResponse> getTopNOrderedMostCustomer(@PathVariable Long num){
         return customerService.getTopNOrderedMostCustomer(num);
     }
 
     //Denenecek
     @GetMapping("/customers/top5")
-    public Customer[] getTop5OrderedMostCustomer(){
+    public List<CustomerResponse> getTop5OrderedMostCustomer(){
         return customerService.getTop5OrderedMostCustomer();
     }
 
     //Denenecek
     @GetMapping("/customers/top10")
-    public Customer[] getTop10OrderedMostCustomer(){
+    public List<CustomerResponse> getTop10OrderedMostCustomer(){
         return customerService.getTop10OrderedMostCustomer();
     }
 
@@ -57,6 +57,11 @@ public class ManagerController {
     @GetMapping("/owners/{restaurantId}")
     public List<OwnerResponseWithoutSRRequest> getOwnersByRestaurantId(@PathVariable Long restaurantId){
         return ownerService.getOwnersByRestaurantId(restaurantId);
+    }
+
+    @ExceptionHandler(RestaurantNotFoundException.class)
+    public ResponseEntity<String> handleRestaurantNotFoundException(RestaurantNotFoundException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
 }

@@ -1,6 +1,9 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Restaurant;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantAlreadyExistsException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantIncorrectPasswordException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.FoodDrinkRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.MenuRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.OwnerRepository;
@@ -38,29 +41,24 @@ public class RestaurantService {
     public void addOneRestaurant(RestauranCreateRequest request){
         Restaurant restaurant = new Restaurant();
 
+        boolean isExist = false;
 
-
-        if(!restaurantRepository.existsRestaurantByName(request.getName())){
-            //It will be saved as encrypted form in the database
+        if(restaurantRepository.findRestaurantByNameAndProvinceAndDistrict(request.getName(),request.getProvince(),request.getDistrict()) == null ){
             restaurant.setPassword(request.getPassword());
-
             restaurant.setName(request.getName());
             restaurant.setType(request.getType());
             restaurant.setDistrict(request.getDistrict());
             restaurant.setProvince(request.getProvince());
             restaurant.setTaxNo(request.getTaxNo());
-
             restaurantRepository.save(restaurant);
+        }else{
+            throw new RestaurantAlreadyExistsException("The restaurant has already exists.");
         }
 
     }
 
-    public void setOwnerToRestaurant(Long ownerId,Long restaurantId){
-
-    }
-
     public String changePasswordOfRestaurant(Long id, RestaurantPasswordUpdateRequest request){
-        Restaurant restaurant = restaurantRepository.findById(id).orElse(null);
+        Restaurant restaurant = restaurantRepository.findById(id).orElseThrow(()-> new RestaurantNotFoundException("There is no such a restaurant."));
 
         if(!restaurant.getPassword().equals(request.getOldPassword())){
             return "Incorrect password";
@@ -79,6 +77,8 @@ public class RestaurantService {
     //Post kullanılacak
     public String deleteRestaurant(Long restaurantId, RestaurantDeleteRequest request){
 
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(()-> new RestaurantNotFoundException("There is no such a restaurant."));
+
         if(restaurantRepository.findById(restaurantId).get().getPassword().equals(request.getPassword())){
             restaurantRepository.deleteById(restaurantId);
             return "The restaurant delete completely from the system.";
@@ -90,32 +90,46 @@ public class RestaurantService {
 
     public void updateRestaurantInfo(Long restaurantId, RestaurantUpdateRequest request){
 
-        Restaurant updatingRestaurant = restaurantRepository.findById(restaurantId).orElse(null);
+        Restaurant updatingRestaurant = restaurantRepository.findById(restaurantId).orElseThrow(()-> new RestaurantNotFoundException("There is no such a restaurant."));
 
-        updatingRestaurant.setName(request.getName());
-        updatingRestaurant.setProvince(request.getProvince());
-        updatingRestaurant.setDistrict(request.getDistrict());
-        updatingRestaurant.setTaxNo(request.getTaxNo());
-        updatingRestaurant.setType(request.getType());
+        if(request.getPassword().equals(updatingRestaurant.getPassword())){
+            updatingRestaurant.setName(request.getName());
+            updatingRestaurant.setProvince(request.getProvince());
+            updatingRestaurant.setDistrict(request.getDistrict());
+            updatingRestaurant.setTaxNo(request.getTaxNo());
+            updatingRestaurant.setType(request.getType());
+            restaurantRepository.save(updatingRestaurant);
+        }else{
+            throw new RestaurantIncorrectPasswordException("The password written is incorrect.");
+        }
 
-        restaurantRepository.save(updatingRestaurant);
     }
 
-    public RestaurantPrivateInfoResponse getRestaurantPrivateInfo(Long restaurantId){
-        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
-        RestaurantPrivateInfoResponse response = new RestaurantPrivateInfoResponse(restaurant);
-        return response;
+    public RestaurantPrivateInfoResponse getRestaurantPrivateInfo(Long restaurantId,RestaurantDeleteRequest request){
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(()-> new RestaurantNotFoundException("There is no such a restaurant."));
+
+        if(request.getPassword().equals(restaurant.getPassword())){
+            RestaurantPrivateInfoResponse response = new RestaurantPrivateInfoResponse(restaurant);
+            return response;
+        }else{
+            throw new RestaurantIncorrectPasswordException("The password written is incorrect.");
+        }
     }
 
     public RestaurantInfoResponse getRestaurantInfo(Long restaurantId){
-        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
-        RestaurantInfoResponse response = new RestaurantInfoResponse(restaurant);
-        return response;
+
+        try {
+            Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+            RestaurantInfoResponse response = new RestaurantInfoResponse(restaurant);
+            return response;
+        }catch(Exception exception){
+            throw new RestaurantNotFoundException("There is no such a restaurant.");
+        }
     }
 
     public String getTotalRestaurantIncome(Long restaurantId, RestaurantDeleteRequest request){
 
-        Restaurant restaurant = restaurantRepository.findById(restaurantId).get();
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(()-> new RestaurantNotFoundException("There is no such a restaurant."));
 
         if(request.getPassword().equals(restaurant.getPassword())){
             return restaurant.getName() + " has " + restaurant.getNetEndorsement() + " net income.";
@@ -127,7 +141,7 @@ public class RestaurantService {
     }
 
     public String getTotalRestaurantProfit(Long restaurantId, RestaurantDeleteRequest request){
-        Restaurant restaurant = restaurantRepository.findById(restaurantId).get();
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(()->new RestaurantNotFoundException("There is no such a restaurant."));
 
         if(request.getPassword().equals(restaurant.getPassword())){
             return restaurant.getName() + " has " + restaurant.getNetProfit() + " net profit.";

@@ -3,15 +3,16 @@ package com.onlineFoodOrdering.onlineFoodOrdering.service;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.FoodDrink;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Menu;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Restaurant;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.FoodDrinkNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.MenuNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.FoodDrinkRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.MenuRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.RestaurantRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.FoodDrinkCreateRequest;
-import com.onlineFoodOrdering.onlineFoodOrdering.request.FoodDrinkUpdateRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.RestaurantDeleteRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -53,27 +54,28 @@ public class FoodDrinkService {
     //}
 
     public List<FoodDrink> getOneMenusFoodDrink(Long menuId){
-        return foodDrinkRepository.findFoodDrinkByMenuId(menuId);
-    }
-
-    public String addFoodDrink(Long menuId, FoodDrinkCreateRequest request){
-
 
         Menu menu = menuRepository.findById(menuId).orElse(null);
 
         if(menu == null){
-            return "There is no such a menu to add a food or drink.";
+            throw new MenuNotFoundException("There is no such a menu.");
         }else{
-            FoodDrink foodDrink = new FoodDrink(menu,request.getName(),request.getSalesPrice(),request.getCostPrice());
-            foodDrinkRepository.save(foodDrink);
-            return "The food/drink is added to system.";
+            return foodDrinkRepository.findFoodDrinkByMenuId(menuId);
         }
+    }
 
+    public FoodDrink addFoodDrink(Long menuId, FoodDrinkCreateRequest request){
+
+        Menu menu = menuRepository.findById(menuId).orElseThrow(()-> new MenuNotFoundException("There is no such a menu."));
+
+        FoodDrink foodDrink = new FoodDrink(menu,request.getName(),request.getSalesPrice(),request.getCostPrice());
+        foodDrinkRepository.save(foodDrink);
+        return foodDrink;
     }
 
     public void updateFoodDrink(Long foodDrinkId,FoodDrinkCreateRequest request){
 
-        FoodDrink foodDrink = foodDrinkRepository.findById(foodDrinkId).orElse(null);
+        FoodDrink foodDrink = foodDrinkRepository.findById(foodDrinkId).orElseThrow(()-> new FoodDrinkNotFoundException("There is no such a food or a drink."));
         foodDrink.setSalesPrice(request.getSalesPrice());
         foodDrink.setCostPrice(request.getCostPrice());
         foodDrink.setName(request.getName());
@@ -81,7 +83,16 @@ public class FoodDrinkService {
         foodDrinkRepository.save(foodDrink);
     }
 
-    public void deleteFoodDrink(Long foodDrinkId){
-        foodDrinkRepository.deleteById(foodDrinkId);
+    public String deleteFoodDrink(Long foodDrinkId, RestaurantDeleteRequest request){
+        FoodDrink foodDrink = foodDrinkRepository.findById(foodDrinkId).orElseThrow(()->new FoodDrinkNotFoundException("There is no such a food or a drink."));
+        Menu menu = foodDrink.getMenu();
+        Restaurant restaurant = menu.getRestaurant();
+        if(restaurant.getPassword().equals(request.getPassword())){
+            String name = foodDrink.getName();
+            foodDrinkRepository.deleteById(foodDrinkId);
+            return "The food or drink called " + name + " was deleted from the system successfully.";
+        }else{
+            return "The password entered is incorrect";
+        }
     }
 }

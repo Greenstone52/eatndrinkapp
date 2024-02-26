@@ -25,11 +25,13 @@ public class OwnerResponse {
 
     //private List<ShareRatio> shareRatios;
     private List<RestaurantShareRatio> resRatios;
+    private double balance;
     public OwnerResponse(Owner owner){
         this.firstName = owner.getDetailsOfUser().getFirstName();
         this.lastName = owner.getDetailsOfUser().getLastName();
         this.gender = owner.getDetailsOfUser().getGender();
         this.gsm = owner.getDetailsOfUser().getGsm();
         this.birthDate = owner.getDetailsOfUser().getBirthDate();
+        this.balance = owner.getBalance();
     }
 }

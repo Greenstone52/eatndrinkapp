@@ -4,6 +4,9 @@ import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Order;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Restaurant;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Review;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.CustomerNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.ReviewNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.CustomerRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.OrderRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.RestaurantRepository;
@@ -34,9 +37,8 @@ public class ReviewService {
         Customer customer = findCustomer(id);
 
         List<Review> reviews = new ArrayList<>();
-
         if(customer == null){
-            return null;
+            throw new CustomerNotFoundException("There is no such a customer.");
         }else{
             reviews = reviewRepository.findReviewsByCustomerId(id);
             return reviews.stream().map(review -> new ReviewResponse(review)).collect(Collectors.toList());
@@ -46,11 +48,10 @@ public class ReviewService {
 
     public List<ReviewResponse> getAllTheReviewsOfTheRestaurant(Long restaurantId){
         Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
-
-        List<Review> reviewList = new ArrayList<>();
+        List<Review> reviewList;
 
         if(restaurant == null){
-            return null;
+            throw new RestaurantNotFoundException("There is no such a restaurant.");
         }else{
             reviewList = reviewRepository.findReviewsByRestaurantId(restaurantId);
             return reviewList.stream().map(review -> new ReviewResponse(review)).collect(Collectors.toList());
@@ -61,7 +62,11 @@ public class ReviewService {
     public String addAReview(Long customerId, ReviewCreateRequest review, Long restaurantId){
         Customer customer = findCustomer(customerId);
 
-        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+        if(customer == null){
+            throw new CustomerNotFoundException("There is no such a customer.");
+        }
+
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(()-> new RestaurantNotFoundException("There is no such a restaurant"));
         //Review existReview = reviewRepository.findReviewByCustomerIdAndRestaurantId(customerId,restaurantId).orElse(null);
 
         // The purpose is that giving permission to a customer make comment a restaurant with a constraint
@@ -77,15 +82,15 @@ public class ReviewService {
             }
         }
 
-        if(customer == null && restaurant == null){
-            return "Please enter an available id and restaurant.";
-        }
-        else if(customer == null){
-            return "There is no such a customer.";
-        }
-        else if(restaurant == null){
-            return "Please enter an available restaurant.";
-        }
+        //if(customer == null && restaurant == null){
+        //    return "Please enter an available id and restaurant.";
+        //}
+        //else if(customer == null){
+        //    return "There is no such a customer.";
+        //}
+        //else if(restaurant == null){
+        //    return "Please enter an available restaurant.";
+        //}
 
 
 
@@ -113,9 +118,7 @@ public class ReviewService {
     public String updateReview(Long id, ReviewCreateRequest review,Long reviewId){
 
         //Review oldReview = reviewRepository.findReviewByCustomerIdAndRestaurantId(id,restaurantId).orElse(null);
-        Review oldReview = reviewRepository.findById(reviewId).orElse(null);
-
-        if(oldReview != null){
+        Review oldReview = reviewRepository.findById(reviewId).orElseThrow(()-> new ReviewNotFoundException("You have not a review for this restaurant."));
             if(oldReview.getCustomer().getId() == id){
                 oldReview.setText(review.getText());
                 oldReview.setTitle(review.getTitle());
@@ -125,9 +128,6 @@ public class ReviewService {
             }else{
                 return "Forbidden request.";
             }
-        }else{
-            return "You have not a review for this restaurant.";
-        }
 
     }
 
@@ -136,17 +136,13 @@ public class ReviewService {
 
         //Review review = reviewRepository.findReviewByCustomerIdAndRestaurantId(id,restaurantId).orElse(null);
 
-        Review review = reviewRepository.findById(reviewId).orElse(null);
+        Review review = reviewRepository.findById(reviewId).orElseThrow(()-> new ReviewNotFoundException("There is no such a review."));
 
-        if(review != null){
             if(review.getCustomer().getId() == id){
                 reviewRepository.deleteById(review.getId());
                 return "Your review was removed successfully.";
             }else{
                 return "Forbidden request.";
             }
-        }else{
-            return "There is no such a review.";
-        }
     }
 }

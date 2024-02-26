@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 @Data
 public class UserUpdateRequest {
-    private String password;
+    //private String password;
     private String firstName;
     private String lastName;
 

@@ -1,15 +1,18 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.CustomerNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.CustomerResponse;
+import com.onlineFoodOrdering.onlineFoodOrdering.response.OwnerResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.RegisterRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.user.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,41 +33,72 @@ public class CustomerService {
         return customers.stream().map(customer -> new CustomerResponse(customer)).collect(Collectors.toList());
     }
 
-    public Customer[] getTopNOrderedMostCustomer(int num){
-        List<Customer> top5 = customerRepository.findAll();
-        Customer[] result = new Customer[5];
+    public List<CustomerResponse> getTopNOrderedMostCustomer(Long num){
+        //List<Customer> topN = customerRepository.findAll();
+//
+        //if(customerRepository.count() < num){
+        //    num = (int)customerRepository.count();
+        //}
+//
+        //Customer[] result = new Customer[num];
+//
+        //int count = 0;
+//
+        //while(count != num){
+//
+        //    double res = 0;
+        //    Long index = 0L;
+        //    Long indexOfList = 0L;
+//
+        //    for (Long i = 0L; i < topN.size(); i++) {
+        //        if(customerRepository.findById(i).get().getTotalSpendMoney() >= res){
+        //            res = customerRepository.findById(i).get().getTotalSpendMoney();
+        //            index = customerRepository.findById(i).get().getId();
+        //            indexOfList = i;
+        //        }
+        //    }
+//
+        //    Customer customer = customerRepository.findById(index).orElse(null);
+        //    result[count] = customer;
+        //    topN.remove(indexOfList);
+        //    count++;
+        //}
+//
+        //return result;
 
-        double res = 0;
-        int count = 0;
-        Long index = 0L;
-        Customer customer = null;
+        if(num > customerRepository.count()){
+            num = customerRepository.count();
+        }
 
-        while(count != num){
+        List<Customer> allCustomers = customerRepository.findAll();
+        ArrayList<Customer> topN = new ArrayList<>();
 
-            for (Long i = 0L; i < customerRepository.count(); i++) {
-                if(customerRepository.findById(i).get().getTotalSpendMoney() > res){
-                    res = customerRepository.findById(i).get().getTotalSpendMoney();
+
+        for (int j = 0; j < num; j++) {
+            double maxVal = 0;
+            int index = 0;
+
+            for (int i = 0; i < allCustomers.size(); i++) {
+                if(allCustomers.get(i).getTotalNumberOfOrder() >= maxVal){
+                    maxVal = allCustomers.get(i).getTotalNumberOfOrder();
                     index = i;
                 }
             }
 
-            customer = customerRepository.findById(index).orElse(null);
-            result[count] = customer;
-            top5.remove(index);
-            res = 0;
-            count++;
+            topN.add(allCustomers.get(index));
+            allCustomers.remove(index);
         }
 
+        return topN.stream().map(customer -> new CustomerResponse(customer)).collect(Collectors.toList());
 
-        return result;
     }
 
-    public Customer[] getTop5OrderedMostCustomer(){
-        return getTopNOrderedMostCustomer(5);
+    public List<CustomerResponse> getTop5OrderedMostCustomer(){
+        return getTopNOrderedMostCustomer(5L);
     }
 
-    public Customer[] getTop10OrderedMostCustomer(){
-        return getTopNOrderedMostCustomer(10);
+    public List<CustomerResponse> getTop10OrderedMostCustomer(){
+        return getTopNOrderedMostCustomer(10L);
     }
 
 
@@ -150,24 +184,15 @@ public class CustomerService {
         User user = userRepository.findUserByUserDetailsIdAndRole(customer.getId(),Role.OWNER);
 
         if(customer != null){
-
-            // Password will be decoded here before go to next lines.
-
-            if(user.getPassword().equals(request.getPassword())){
-                customer.getDetailsOfUser().setGender(request.getGender());
-                customer.getDetailsOfUser().setGsm(request.getGsm());
-                customer.getDetailsOfUser().setLastName(request.getLastName());
-                customer.getDetailsOfUser().setFirstName(request.getLastName());
-                customer.getDetailsOfUser().setBirthDate(request.getBirthDate());
-                detailsOfUserRepository.save(customer.getDetailsOfUser());
-
-                return "The details of the owner was updated successfully.";
-            }
-
-            return "The password entered is wrong.";
-
+            customer.getDetailsOfUser().setGender(request.getGender());
+            customer.getDetailsOfUser().setGsm(request.getGsm());
+            customer.getDetailsOfUser().setLastName(request.getLastName());
+            customer.getDetailsOfUser().setFirstName(request.getLastName());
+            customer.getDetailsOfUser().setBirthDate(request.getBirthDate());
+            detailsOfUserRepository.save(customer.getDetailsOfUser());
+            return "The details of the customer was updated successfully.";
         }else{
-            return "There is no such an owner in the system.";
+            throw new CustomerNotFoundException("There is no such a customer.");
         }
 
     }
@@ -178,25 +203,19 @@ public class CustomerService {
 
 
     // The constraint about password will be added.
-    public String deleteCustomer(Long id, CustomerDeleteRequest request){
+    public String deleteCustomer(Long id){
 
         Customer customer = findCustomer(id);
+
+        if(customer == null){
+            throw new CustomerNotFoundException("There is no such a customer.");
+        }
+
         User user = userRepository.findUserByUserDetailsIdAndRole(customer.getId(),Role.CUSTOMER);
 
-        if(user == null){
-            return "There is no such an user.";
-        }
-
-        if(user.getPassword().equals(request.getPassword())){
-            String email = user.getEmail();
-            customerRepository.deleteById(customer.getId());
-            // userRepository.deleteById(user.getId());
-            // An error may be occur here as orphanal remove is not working well.
-            return "The user whose email is "+email+" was removed from the system.";
-        }else{
-            return "The password is entered incorrect!";
-        }
-
+        String email = user.getEmail();
+        customerRepository.deleteById(customer.getId());
+        return "The user whose email is "+email+" was removed from the system.";
     }
 
 

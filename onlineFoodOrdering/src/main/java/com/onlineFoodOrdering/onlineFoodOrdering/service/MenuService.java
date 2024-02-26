@@ -3,11 +3,15 @@ package com.onlineFoodOrdering.onlineFoodOrdering.service;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.FoodDrink;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Menu;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Restaurant;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.MenuAlreadyExistsException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.MenuNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.FoodDrinkRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.MenuRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.RestaurantRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.MenuCreateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.MenuUpdateRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.RestaurantDeleteRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.FoodDrinkResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.MenuWithFoodDrinkResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.MenuWithFoodDrinkResponseForCustomer;
@@ -28,7 +32,7 @@ public class MenuService {
 
     public String addMenu(Long restaurantId, MenuCreateRequest request){
         Menu menu = menuRepository.findMenuByNameAndRestaurantId(request.getName(),restaurantId).orElse(null);
-        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(()-> new RestaurantNotFoundException("There is no such a restaurant."));
 
         if(menu == null){
             menu = new Menu();
@@ -37,17 +41,19 @@ public class MenuService {
             menuRepository.save(menu);
             return "The menu is saved successfully.";
         }else{
-            return "The menu was already saved.";
+            throw new MenuAlreadyExistsException("The menu is already exists.");
         }
     }
 
     public void updateMenu(Long menuId, MenuUpdateRequest request){
-        Menu menu = menuRepository.findById(menuId).orElse(null);
+        Menu menu = menuRepository.findById(menuId).orElseThrow(()-> new MenuNotFoundException("There is no such a menu"));
         menu.setName(request.getName());
         menuRepository.save(menu);
     }
 
     public List<MenuWithFoodDrinkResponse> getAllTheMenuOfTheRestaurant(Long restaurantId){
+
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(()->new RestaurantNotFoundException("There is no such a restaurant."));
 
         List<Menu> menus = menuRepository.findMenuByRestaurantId(restaurantId);
         List<MenuWithFoodDrinkResponse> responseList = new ArrayList<>();
@@ -65,22 +71,37 @@ public class MenuService {
 
     public List<MenuWithFoodDrinkResponseForCustomer> getAllTheMenuOfTheRestaurantForCustomers(Long restaurantId){
 
-        List<Menu> menus = menuRepository.findMenuByRestaurantId(restaurantId);
-        List<MenuWithFoodDrinkResponseForCustomer> responseList = new ArrayList<>();
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
 
-        for (int i = 0; i < menus.size(); i++) {
-            MenuWithFoodDrinkResponseForCustomer response = new MenuWithFoodDrinkResponseForCustomer(menus.get(i));
-            List<FoodDrink> foodDrinkList = foodDrinkRepository.findFoodDrinkByMenuId(menus.get(i).getId());
+        if(restaurant == null){
+            throw new RestaurantNotFoundException("There is no such a restaurant.");
+        }else{
+            List<Menu> menus = menuRepository.findMenuByRestaurantId(restaurantId);
+            List<MenuWithFoodDrinkResponseForCustomer> responseList = new ArrayList<>();
 
-            response.setFoodDrinkListResponse(foodDrinkList.stream().map(foodDrinkResponse -> new FoodDrinkResponse(foodDrinkResponse)).collect(Collectors.toList()));
-            responseList.add(response);
+            for (int i = 0; i < menus.size(); i++) {
+                MenuWithFoodDrinkResponseForCustomer response = new MenuWithFoodDrinkResponseForCustomer(menus.get(i));
+                List<FoodDrink> foodDrinkList = foodDrinkRepository.findFoodDrinkByMenuId(menus.get(i).getId());
+
+                response.setFoodDrinkListResponse(foodDrinkList.stream().map(foodDrinkResponse -> new FoodDrinkResponse(foodDrinkResponse)).collect(Collectors.toList()));
+                responseList.add(response);
+            }
+
+            return responseList;
         }
-
-        return responseList;
     }
 
-    public void deleteMenu(Long menuId){
-        menuRepository.deleteById(menuId);
-    }
+    public String deleteMenu(Long menuId, RestaurantDeleteRequest request) {
 
+        Menu menu = menuRepository.findById(menuId).orElseThrow(()-> new MenuNotFoundException("There is no such a menu."));
+
+            Restaurant restaurant = menu.getRestaurant();
+
+            if(restaurant.getPassword().equals(request.getPassword())){
+                menuRepository.deleteById(menuId);
+                return "The menu was removed from the system successfully.";
+            }else{
+                return "The password entered is incorrect.";
+            }
+    }
 }

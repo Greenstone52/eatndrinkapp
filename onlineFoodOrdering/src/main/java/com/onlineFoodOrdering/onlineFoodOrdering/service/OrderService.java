@@ -1,6 +1,10 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.CustomerNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.FoodDrinkNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.OrderNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OrderCreateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OrderUpdateRequest;
@@ -33,13 +37,13 @@ public class OrderService {
 
     public String setAnOrder(Long id, OrderCreateRequest request, String cardNumber){
         Customer customer = findCustomer(id);
-        Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId()).orElse(null);
-        FoodDrink foodDrink = foodDrinkRepository.findById(request.getFoodDrinkId()).orElse(null);
+        Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId()).orElseThrow(()->new RestaurantNotFoundException("There is no such a restaurant."));
+        FoodDrink foodDrink = foodDrinkRepository.findById(request.getFoodDrinkId()).orElseThrow(()-> new FoodDrinkNotFoundException("There is no such a food or a drink."));
 
-        Card card = cardRepository.findCardByCustomerIdAndCardNumber(id,cardNumber).orElse(null);
+        Card card = cardRepository.findCardByCustomerIdAndCardNumber(id,cardNumber).orElseThrow(()->new CardNotFoundException("There is no such a card has this card number"));
 
         if(card == null){
-            return "You have no such a card has this card number.";
+            throw new CardNotFoundException("You have no such a card has this card number.");
         }else{
             if(foodDrink != null && restaurant != null){
                 if(card.getBalance() >= foodDrink.getSalesPrice()){
@@ -64,7 +68,6 @@ public class OrderService {
                         Owner owner = ownerRepository.findById(shareRatioList.get(i).getOwner().getId()).orElse(null);
                         owner.setBalance(owner.getBalance() + foodDrink.getProfit()*shareRatio);
                         ownerRepository.save(owner);
-
                     }
                     card.setBalance(card.getBalance()- foodDrink.getSalesPrice());
                     cardRepository.save(card);
@@ -89,6 +92,11 @@ public class OrderService {
         //       customerOrders.add(orders.get(i));
         //    }
         //}
+
+        if(customerRepository.findById(id) == null){
+            throw new CustomerNotFoundException("There is no such a customer.");
+        }
+
         List<Order> ordersList = orderRepository.findOrdersByCustomerId(id);
         return ordersList.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());
         //return customerOrders.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());
@@ -107,6 +115,7 @@ public class OrderService {
         //}
 //
         //return restaurantOrders.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(()-> new RestaurantNotFoundException("There is no such a restaurant."));
         List<Order> ordersList = orderRepository.findOrdersByRestaurantId(restaurantId);
         return ordersList.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());
     }
@@ -115,7 +124,8 @@ public class OrderService {
 
         LocalDateTime currentDate = LocalDateTime.now();
 
-        Order order = orderRepository.findById(orderId).orElse(null);
+        Customer customer = customerRepository.findById(id).orElseThrow(()-> new CustomerNotFoundException("There is no such a customer."));
+        Order order = orderRepository.findById(orderId).orElseThrow(()-> new OrderNotFoundException("There is no such an order."));
 
         if (order != null && order.getCustomer().getId().equals(id)) {
 

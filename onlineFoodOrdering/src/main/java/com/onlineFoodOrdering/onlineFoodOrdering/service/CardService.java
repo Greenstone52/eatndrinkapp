@@ -2,6 +2,7 @@ package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Card;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.CustomerNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.CardRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.CustomerRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.CardCreateRequest;
@@ -26,15 +27,21 @@ public class CardService {
     }
 
     public List<CardResponse> getAllTheCardsOfTheCustomer(Long id){
-        List<Card> cards = cardRepository.findCardByCustomerId(id);
-        return cards.stream().map(card -> new CardResponse(card)).collect(Collectors.toList());
+
+        if(customerRepository.findById(id) == null){
+            throw new CustomerNotFoundException("There is no such a customer.");
+        }else{
+            List<Card> cards = cardRepository.findCardByCustomerId(id);
+            return cards.stream().map(card -> new CardResponse(card)).collect(Collectors.toList());
+        }
+
     }
 
     public void setACard(Long id, CardCreateRequest card){
         Customer customer = findCustomer(id);
 
         if(customer == null){
-            return;
+            throw new CustomerNotFoundException("There is no such a customer.");
         }
 
         Card newCard = new Card();
@@ -49,6 +56,13 @@ public class CardService {
     }
 
     public void updateSelectedCard(Long id,String cardNumber,CardCreateRequest updateCard){
+
+        if(customerRepository.findById(id) == null){
+            throw new CustomerNotFoundException("There is no such a customer.");
+        }else if(cardRepository.findCardByCustomerIdAndCardNumber(id,cardNumber) == null){
+            throw new CardNotFoundException("There is no such a card has this card number.");
+        }
+
         Card card = cardRepository.findCardByCustomerIdAndCardNumber(id,cardNumber).orElse(null);
 
         card.setName(updateCard.getName());
@@ -86,13 +100,17 @@ public class CardService {
 
         //Customer customer = findCustomer(id);
 
+        if(customerRepository.findById(id) == null){
+            throw new CustomerNotFoundException("There is no such a customer.");
+        }
+
         Card card = cardRepository.findCardByCustomerIdAndCardNumber(id, request.getCardNumber()).orElse(null);
 
         if(card !=null){
             cardRepository.deleteById(card.getId());
             return "Your card is removed from the system successfully.";
         }else{
-            return "There is no such a card enrolled in the system.";
+            throw new CardNotFoundException("There is no such a card.");
         }
     }
 }

@@ -42,6 +42,6 @@ public class AdminController {
 
     @GetMapping("/owners/{topN}")
     public List<OwnerResponse> getTopNOwners(@PathVariable Long topN){
-        return ownerService.getTopNOwners(topN);
+        return ownerService.getOwners(topN);
     }
 }

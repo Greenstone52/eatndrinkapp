@@ -1,8 +1,9 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.security.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.DetailsOfUser;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.User;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.EmailAlreadyExistsException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.IncorrectPasswordException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.DetailsOfUserRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.UserRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.config.JwtService;
@@ -19,11 +20,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.lang.ref.PhantomReference;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +42,13 @@ public class AuthenticationService {
 
     boolean isOK = false;
     public String register(RegisterRequest request){
+
+        User userException = userRepository.findByEmail(request.getEmail()).orElse(null);
+
+        if(userException != null){
+            throw new EmailAlreadyExistsException("The email has already exists.");
+        }
+
         if(request.getRole().equals(Role.CUSTOMER)){
             customerService.addACustomer(request);
             isOK = true;
@@ -69,22 +77,28 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request){
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
 
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
-        revokeAllUserTokens(user);
-        saveUserToken(user, jwtToken);
-        return AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
+        try{
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+
+            var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+            var jwtToken = jwtService.generateToken(user);
+            var refreshToken = jwtService.generateRefreshToken(user);
+            revokeAllUserTokens(user);
+            saveUserToken(user, jwtToken);
+            return AuthenticationResponse.builder()
+                    .accessToken(jwtToken)
+                    .refreshToken(refreshToken)
+                    .build();
+        }catch (AuthenticationException exception){
+            throw new IncorrectPasswordException("The password you entered is incorrect for this email.");
+        }
+
     }
 
     private void saveUserToken(User user, String jwtToken) {

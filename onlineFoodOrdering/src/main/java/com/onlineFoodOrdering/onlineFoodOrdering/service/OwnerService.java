@@ -1,5 +1,8 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.OwnerNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantIncorrectPasswordException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.compositeKey.ShareRatioKey;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
@@ -48,14 +51,21 @@ public class OwnerService {
     }
 
     public List<OwnerResponseWithoutSRRequest> getOwnersByRestaurantId(Long restaurantId){
-        List<ShareRatio> shareRatios = shareRatioRepository.findShareRatioByRestaurantId(restaurantId);
-        List<Owner> result = new ArrayList<>();
 
-        for (int i = 0; i < shareRatios.size(); i++) {
-            result.add(shareRatios.get(i).getOwner());
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+
+        if(restaurant == null){
+            throw new RestaurantNotFoundException("There is no such a restaurant.");
+        }else{
+            List<ShareRatio> shareRatios = shareRatioRepository.findShareRatioByRestaurantId(restaurantId);
+            List<Owner> result = new ArrayList<>();
+
+            for (int i = 0; i < shareRatios.size(); i++) {
+                result.add(shareRatios.get(i).getOwner());
+            }
+
+            return result.stream().map(owner->new OwnerResponseWithoutSRRequest(owner)).collect(Collectors.toList());
         }
-
-        return result.stream().map(owner->new OwnerResponseWithoutSRRequest(owner)).collect(Collectors.toList());
     }
 
     public List<OwnerResponse> getTopFiveOwners(){
@@ -79,12 +89,13 @@ public class OwnerService {
         List<Owner> allOwners = ownerRepository.findAll();
         ArrayList<Owner> topN = new ArrayList<>();
 
-        double maxVal = 0;
-        int index = -1;
 
         for (int j = 0; j < N; j++) {
-            for (int i = 0; i < ownerRepository.count(); i++) {
-                if(allOwners.get(i).getBalance() > maxVal){
+            double maxVal = 0;
+            int index = 0;
+
+            for (int i = 0; i < allOwners.size(); i++) {
+                if(allOwners.get(i).getBalance() >= maxVal){
                     maxVal = allOwners.get(i).getBalance();
                     index = i;
                 }
@@ -92,7 +103,6 @@ public class OwnerService {
 
             topN.add(allOwners.get(index));
             allOwners.remove(index);
-            index = -1;
         }
 
         return topN.stream().map(owner -> new OwnerResponse(owner)).collect(Collectors.toList());
@@ -170,29 +180,26 @@ public class OwnerService {
     }
 
     public String setAnOwnerToARestaurant(Long ownerId, Long restaurantId, SetOwnerToARestaurantRequest request){
-        Owner owner = ownerRepository.findById(ownerId).orElse(null);
-        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+        Owner owner = ownerRepository.findById(ownerId).orElseThrow(()->new OwnerNotFoundException("There is no such an owner."));
+        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(()-> new RestaurantNotFoundException("There is no such a restaurant."));
         List<ShareRatio> shareRatioList = shareRatioRepository.findShareRatioByRestaurantId(restaurantId);
+
         User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),Role.OWNER);
 
-        if(user.getPassword().equals(request.getOwnerPassword()) && restaurant.getPassword().equals(request.getRestaurantPassword())){
-
-            boolean isAlreadyPartner = false;
+        if(restaurant.getPassword().equals(request.getRestaurantPassword())){
 
             for (int i = 0; i < shareRatioList.size(); i++) {
                 if(shareRatioList.get(i).getOwner() == owner){
-                    isAlreadyPartner = true;
                     return "The owner was already an partner of this restaurant.";
                 }
             }
 
-            if(!isAlreadyPartner){
-                //restaurant.getOwners().add(owner);
-                ShareRatioKey sRKey = new ShareRatioKey(ownerId,restaurantId);
-                ShareRatio shareRatio = new ShareRatio(sRKey,owner,restaurant,request.getShareRatio());
-                shareRatioRepository.save(shareRatio);
-                return "The process was completed successfully.";
-            }
+            //restaurant.getOwners().add(owner);
+            ShareRatioKey sRKey = new ShareRatioKey(ownerId,restaurantId);
+            ShareRatio shareRatio = new ShareRatio(sRKey,owner,restaurant,request.getShareRatio());
+            shareRatioRepository.save(shareRatio);
+            return "The process was completed successfully.";
+
 
             //for (int i = 0; i < restaurant.getOwners().size(); i++) {
             //    if(restaurant.getOwners().get(i) == owner){
@@ -205,56 +212,27 @@ public class OwnerService {
             //    restaurant.getOwners().add(owner);
             //    return "The process was completed successfully.";
             //}
+        }else{
+            throw new RestaurantIncorrectPasswordException("The password written is incorrect.");
         }
-
-        return "Incorrent information!";
-
     }
 
     public String updateOneOwner(UserUpdateRequest request, Long id){
-        Owner owner = ownerRepository.findById(id).orElse(null);
-        User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),Role.OWNER);
+        Owner owner = ownerRepository.findById(id).orElseThrow(()-> new OwnerNotFoundException("There is no such an owner."));
 
-        if(owner != null){
-
-            // Password will be decoded here before go to next lines.
-
-            if(user.getPassword().equals(request.getPassword())){
-                owner.getDetailsOfUser().setGender(request.getGender());
-                owner.getDetailsOfUser().setGsm(request.getGsm());
-                owner.getDetailsOfUser().setLastName(request.getLastName());
-                owner.getDetailsOfUser().setFirstName(request.getLastName());
-                owner.getDetailsOfUser().setBirthDate(request.getBirthDate());
-                detailsOfUserRepository.save(owner.getDetailsOfUser());
-
-                return "The details of the owner was updated successfully.";
-            }
-
-            return "The password entered is wrong.";
-
-        }else{
-            return "There is no such an owner in the system.";
-        }
+        owner.getDetailsOfUser().setGender(request.getGender());
+        owner.getDetailsOfUser().setGsm(request.getGsm());
+        owner.getDetailsOfUser().setLastName(request.getLastName());
+        owner.getDetailsOfUser().setFirstName(request.getLastName());
+        owner.getDetailsOfUser().setBirthDate(request.getBirthDate());
+        detailsOfUserRepository.save(owner.getDetailsOfUser());
+        return "The details of the owner was updated successfully.";
     }
 
-    public String deleteOneOwner(Long id,OwnerDeleteRequest request){
-        Owner owner = ownerRepository.findById(id).orElse(null);
-        User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),Role.OWNER);
-
-        if(owner != null){
-
-            // Password will be decoded here before go to next lines.
-
-            if(user.getPassword().equals(request.getPassword())){
-                ownerRepository.delete(owner);
-                return "The owner is removed from the system.";
-            }
-
-            return "The password entered is wrong";
-
-        }else{
-            return "There is no such an owner in the system.";
-        }
+    public String deleteOneOwner(Long id){
+        Owner owner = ownerRepository.findById(id).orElseThrow(()-> new OwnerNotFoundException("There is no such an owner in the system."));
+        ownerRepository.delete(owner);
+        return "The owner is removed from the system.";
     }
 
     public List<OwnerResponse> getTopNMostEarnedOwners(int n){

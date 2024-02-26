@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class SetOwnerToARestaurantRequest {
-    private String ownerPassword;
+    //private String ownerPassword;
     private String restaurantPassword;
     private double shareRatio;
 }

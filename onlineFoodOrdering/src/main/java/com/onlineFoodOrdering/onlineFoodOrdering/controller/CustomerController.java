@@ -1,9 +1,12 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.controller;
 
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.*;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -72,9 +75,9 @@ public class CustomerController {
         customerService.updateCustomerInfo(customerId,request);
     }
 
-    @PostMapping("/customers/delete/{customerId}")
-    public String deleteCustomer(@PathVariable Long customerId, @RequestBody CustomerDeleteRequest request){
-        return customerService.deleteCustomer(customerId,request);
+    @DeleteMapping("/customers/delete/{customerId}")
+    public String deleteCustomer(@PathVariable Long customerId){
+        return customerService.deleteCustomer(customerId);
     }
 
     // Order
@@ -118,4 +121,35 @@ public class CustomerController {
     public String deleteReview(@PathVariable Long customerId, @PathVariable Long reviewId){
         return reviewService.deleteReview(customerId,reviewId);
     }
+
+    @ExceptionHandler(CustomerNotFoundException.class)
+    public ResponseEntity<String> handleCustomerNotFoundException(CustomerNotFoundException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CardNotFoundException.class)
+    public ResponseEntity<String> handleCardNotFoundException(CardNotFoundException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AddressNotFoundException.class)
+    public ResponseEntity<String> handleAddressNotFoundException(AddressNotFoundException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<String> handleOrderNotFoundException(OrderNotFoundException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(CustomerNotFoundException.class)
+    public ResponseEntity<String> handleRestaurantNotFoundException(RestaurantNotFoundException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<String> handleReviewNotFoundException(ReviewNotFoundException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
 }

@@ -1,5 +1,7 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.security.auth;
 
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.EmailAlreadyExistsException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.IncorrectPasswordException;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.user.Role;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.CustomerService;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.ManagerAdminService;
@@ -9,11 +11,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -51,5 +51,15 @@ public class AuthenticationController {
             HttpServletResponse response
     ) throws IOException {
         authenticationService.refreshToken(request,response);
+    }
+
+    @ExceptionHandler(IncorrectPasswordException.class)
+    public ResponseEntity<String> handleIncorrectPasswordException(IncorrectPasswordException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<String> handleEmailAlreadyExistsException(EmailAlreadyExistsException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
     }
 }

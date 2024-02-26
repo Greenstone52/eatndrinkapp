@@ -1,11 +1,15 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.controller;
 
+import com.onlineFoodOrdering.onlineFoodOrdering.entity.FoodDrink;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.MenuWithFoodDrinkResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OrderResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.RestaurantPrivateInfoResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.*;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +27,7 @@ public class OwnerController {
 
     //FoodDrink
     @PostMapping("/foodDrinks/{menuId}")
-    public String addFoodDrink(@PathVariable Long menuId, @RequestBody FoodDrinkCreateRequest request) {
+    public FoodDrink addFoodDrink(@PathVariable Long menuId, @RequestBody FoodDrinkCreateRequest request) {
         return foodDrinkService.addFoodDrink(menuId,request);
     }
 
@@ -32,9 +36,9 @@ public class OwnerController {
         foodDrinkService.updateFoodDrink(foodDrinkId,request);
     }
 
-    @DeleteMapping("/foodDrinks/{foodDrinkId}")
-    public void deleteFoodDrink(@PathVariable Long foodDrinkId){
-        foodDrinkService.deleteFoodDrink(foodDrinkId);
+    @PostMapping("/foodDrinks/delete/{foodDrinkId}")
+    public String deleteFoodDrink(@PathVariable Long foodDrinkId, @RequestBody RestaurantDeleteRequest request){
+        return foodDrinkService.deleteFoodDrink(foodDrinkId, request);
     }
 
     // Menu
@@ -53,9 +57,9 @@ public class OwnerController {
         menuService.updateMenu(menuId,request);
     }
 
-    @DeleteMapping("/menus/{menuId}")
-    public void deleteMenu(@PathVariable Long menuId){
-        menuService.deleteMenu(menuId);
+    @PostMapping("/menus/delete/{menuId}")
+    public String deleteMenu(@PathVariable Long menuId, @RequestBody RestaurantDeleteRequest request){
+        return menuService.deleteMenu(menuId,request);
     }
 
     // Order
@@ -75,9 +79,9 @@ public class OwnerController {
         return ownerService.updateOneOwner(request,id);
     }
 
-    @PostMapping("/owners/{id}")
-    public String deleteOneOwner(@PathVariable Long id, @RequestBody OwnerDeleteRequest request){
-        return ownerService.deleteOneOwner(id,request);
+    @DeleteMapping("/owners/{id}")
+    public String deleteOneOwner(@PathVariable Long id){
+        return ownerService.deleteOneOwner(id);
     }
 
     // Restaurant
@@ -97,8 +101,8 @@ public class OwnerController {
     }
 
     @GetMapping("/restaurants/{restaurantId}/privateInfo")
-    public RestaurantPrivateInfoResponse getRestaurantPrivateInfo(@PathVariable Long restaurantId){
-        return restaurantService.getRestaurantPrivateInfo(restaurantId);
+    public RestaurantPrivateInfoResponse getRestaurantPrivateInfo(@PathVariable Long restaurantId, @RequestBody RestaurantDeleteRequest request){
+        return restaurantService.getRestaurantPrivateInfo(restaurantId,request);
     }
 
     @GetMapping("/restaurants/{restaurantId}/income")
@@ -114,5 +118,40 @@ public class OwnerController {
     @PostMapping("/restaurants/{restaurantId}/changePassword")
     public String changePasswordOfRestaurant(@PathVariable(value = "restaurantId") Long id, @RequestBody RestaurantPasswordUpdateRequest request){
         return restaurantService.changePasswordOfRestaurant(id,request);
+    }
+
+    @ExceptionHandler(RestaurantIncorrectPasswordException.class)
+    public ResponseEntity<String> handleRestaurantIncorrectPasswordException(RestaurantIncorrectPasswordException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MenuNotFoundException.class)
+    public ResponseEntity<String> handleMenuNotFoundException(MenuNotFoundException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MenuAlreadyExistsException.class)
+    public ResponseEntity<String> handleMenuAlreadyExistsException(MenuAlreadyExistsException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(OwnerNotFoundException.class)
+    public ResponseEntity<String> handleOwnerNotFoundException(OwnerNotFoundException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(RestaurantNotFoundException.class)
+    public ResponseEntity<String> handleRestaurantNotFoundException(RestaurantNotFoundException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(FoodDrinkNotFoundException.class)
+    public ResponseEntity<String> handleFoodDrinkNotFoundException(FoodDrinkNotFoundException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(RestaurantAlreadyExistsException.class)
+    public ResponseEntity<String> handleRestaurantAlreadyExistsException(RestaurantAlreadyExistsException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
     }
 }

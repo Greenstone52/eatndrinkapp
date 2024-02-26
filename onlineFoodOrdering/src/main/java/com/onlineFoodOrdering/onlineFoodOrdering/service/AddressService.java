@@ -2,6 +2,8 @@ package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Address;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.AddressNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.CustomerNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.AddressRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.CustomerRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.AddressCreateRequest;
@@ -37,6 +39,8 @@ public class AddressService {
             newAddress.setStreet(address.getStreet());
             newAddress.setBuildingNo(address.getBuildingNo());
             addressRepository.save(newAddress);
+        }else{
+            throw new CustomerNotFoundException("There is no such a customer.");
         }
     }
 
@@ -47,7 +51,7 @@ public class AddressService {
                 .orElse(null);
 
         if(existAddress == null){
-            throw new RuntimeException("There is no such an address has this title.");
+            throw new AddressNotFoundException("There is no such an address has this title.");
         }
 
         existAddress.setAddressTitle(request.getAddressTitle());
@@ -84,15 +88,28 @@ public class AddressService {
     }
 
     public AddressResponse getOneAddressOfTheCustomerAndAddressTitle(Long id,String title){
-        Address address = addressRepository.findAddressByCustomerIdAndAddressTitle(id,title).orElse(null);
-        AddressResponse response = new AddressResponse(address);
-        return response;
+
+        if(customerRepository.findById(id) == null){
+            throw new CustomerNotFoundException("There is no such a customer.");
+        }else if(addressRepository.findAddressByCustomerIdAndAddressTitle(id,title) == null){
+            throw new CardNotFoundException("There is no such a card has this title.");
+        }else{
+            Address address = addressRepository.findAddressByCustomerIdAndAddressTitle(id,title).orElse(null);
+            AddressResponse response = new AddressResponse(address);
+            return response;
+        }
+
     }
 
     public List<AddressResponse> getAllTheAddressOfTheCustomer(Long id){
-        Customer customer = findCustomer(id);
-        List<Address> addresses = addressRepository.findAddressByCustomerId(id);
-        return addresses.stream().map(address -> new AddressResponse(address)).collect(Collectors.toList());
+
+        if(customerRepository.findById(id) == null){
+            throw new CustomerNotFoundException("There is no such a customer.");
+        }else{
+            Customer customer = findCustomer(id);
+            List<Address> addresses = addressRepository.findAddressByCustomerId(id);
+            return addresses.stream().map(address -> new AddressResponse(address)).collect(Collectors.toList());
+        }
     }
 
 }

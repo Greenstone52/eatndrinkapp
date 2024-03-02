@@ -3,6 +3,7 @@ package com.onlineFoodOrdering.onlineFoodOrdering.service;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.DetailsOfUser;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.ManagerAdmin;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.User;
+import com.onlineFoodOrdering.onlineFoodOrdering.enums.Gender;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.DetailsOfUserRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.ManagerAdminRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.UserRepository;
@@ -14,6 +15,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -107,11 +109,11 @@ public class ManagerAdminService {
             }
 
             if(user != null){
-                manAdmin.getDetailsOfUser().setGender(request.getGender());
+                manAdmin.getDetailsOfUser().setGender(Gender.valueOf(request.getGender()));
                 manAdmin.getDetailsOfUser().setGsm(request.getGsm());
                 manAdmin.getDetailsOfUser().setLastName(request.getLastName());
                 manAdmin.getDetailsOfUser().setFirstName(request.getFirstName());
-                manAdmin.getDetailsOfUser().setBirthDate(request.getBirthDate());
+                manAdmin.getDetailsOfUser().setBirthDate(LocalDate.parse(request.getBirthDate()));
                 detailsOfUserRepository.save(manAdmin.getDetailsOfUser());
                 return isAdmin? "The details of the admin was updated successfully."
                         : "The details of the manager was updated successfully.";

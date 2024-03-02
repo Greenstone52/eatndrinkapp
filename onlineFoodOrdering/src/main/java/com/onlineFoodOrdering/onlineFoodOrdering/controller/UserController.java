@@ -63,6 +63,6 @@ public class UserController {
 
     @ExceptionHandler(MenuNotFoundException.class)
     public ResponseEntity<String> handleMenuNotFoundException(MenuNotFoundException exception){
-        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND );
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 }

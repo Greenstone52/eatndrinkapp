@@ -4,6 +4,7 @@ import com.onlineFoodOrdering.onlineFoodOrdering.entity.Restaurant;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantAlreadyExistsException;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantIncorrectPasswordException;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.UniqueTaxNumberException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.FoodDrinkRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.MenuRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.OwnerRepository;
@@ -50,7 +51,13 @@ public class RestaurantService {
             restaurant.setDistrict(request.getDistrict());
             restaurant.setProvince(request.getProvince());
             restaurant.setTaxNo(request.getTaxNo());
-            restaurantRepository.save(restaurant);
+
+            try {
+                restaurantRepository.save(restaurant);
+            }catch (RuntimeException exception){
+                throw new UniqueTaxNumberException("Incorrect tax number.");
+            }
+
         }else{
             throw new RestaurantAlreadyExistsException("The restaurant has already exists.");
         }
@@ -61,11 +68,11 @@ public class RestaurantService {
         Restaurant restaurant = restaurantRepository.findById(id).orElseThrow(()-> new RestaurantNotFoundException("There is no such a restaurant."));
 
         if(!restaurant.getPassword().equals(request.getOldPassword())){
-            return "Incorrect password";
+            throw new RestaurantIncorrectPasswordException("Incorrect password.");
         } else if (restaurant.getPassword().equals(request.getNewPassword())) {
-            return "New password should not be same with beforehand.";
+            throw new RestaurantIncorrectPasswordException("New password should not be same with beforehand.");
         } else if(!request.getNewPassword().equals(request.getNewPassword2())){
-            return "The repetitive password is not match with the new password.";
+            throw new RestaurantIncorrectPasswordException("The repetitive password is not match with the new password.");
         }else{
             restaurant.setPassword(request.getNewPassword());
             restaurantRepository.save(restaurant);
@@ -83,7 +90,7 @@ public class RestaurantService {
             restaurantRepository.deleteById(restaurantId);
             return "The restaurant delete completely from the system.";
         }else{
-            return "You entered incorrect password";
+            throw new RestaurantIncorrectPasswordException("Incorrect password.");
         }
 
     }
@@ -93,14 +100,27 @@ public class RestaurantService {
         Restaurant updatingRestaurant = restaurantRepository.findById(restaurantId).orElseThrow(()-> new RestaurantNotFoundException("There is no such a restaurant."));
 
         if(request.getPassword().equals(updatingRestaurant.getPassword())){
-            updatingRestaurant.setName(request.getName());
-            updatingRestaurant.setProvince(request.getProvince());
-            updatingRestaurant.setDistrict(request.getDistrict());
-            updatingRestaurant.setTaxNo(request.getTaxNo());
-            updatingRestaurant.setType(request.getType());
-            restaurantRepository.save(updatingRestaurant);
+
+            if(restaurantRepository.findRestaurantByNameAndProvinceAndDistrict(request.getName(),request.getProvince(),request.getDistrict()) == null){
+                updatingRestaurant.setPassword(request.getPassword());
+                updatingRestaurant.setName(request.getName());
+                updatingRestaurant.setType(request.getType());
+                updatingRestaurant.setDistrict(request.getDistrict());
+                updatingRestaurant.setProvince(request.getProvince());
+                updatingRestaurant.setTaxNo(request.getTaxNo());
+
+                try {
+                    restaurantRepository.save(updatingRestaurant);
+                }catch (RuntimeException exception){
+                    throw new UniqueTaxNumberException("Incorrect tax number.");
+                }
+
+            }else{
+                throw new RestaurantAlreadyExistsException("The restaurant has already exists.");
+            }
+
         }else{
-            throw new RestaurantIncorrectPasswordException("The password written is incorrect.");
+            throw new RestaurantIncorrectPasswordException("Incorrect password.");
         }
 
     }
@@ -134,7 +154,7 @@ public class RestaurantService {
         if(request.getPassword().equals(restaurant.getPassword())){
             return restaurant.getName() + " has " + restaurant.getNetEndorsement() + " net income.";
         }else{
-            return "Incorrect password";
+            throw new RestaurantIncorrectPasswordException("Incorrect password.");
         }
 
 

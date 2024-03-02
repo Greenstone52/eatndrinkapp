@@ -32,6 +32,12 @@ public class Review {
     @JsonIgnore
     private Restaurant restaurant;
 
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "orderId")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private Order order;
+
     private String title;
 
     @Lob

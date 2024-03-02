@@ -24,7 +24,6 @@ public class FoodDrink {
     @JsonIgnore
     private Menu menu;
 
-    @Column(unique = true)
     private String name;
 
     private double salesPrice;

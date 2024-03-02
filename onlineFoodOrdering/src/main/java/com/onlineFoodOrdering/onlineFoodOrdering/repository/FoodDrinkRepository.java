@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface FoodDrinkRepository extends JpaRepository<FoodDrink,Long> {
     List<FoodDrink> findFoodDrinkByMenuId(Long menuId);
+    FoodDrink findFoodDrinkByMenuIdAndName(Long menuId, String name);
+
+    FoodDrink findFoodDrinkByIdAndName(Long id, String name);
 }

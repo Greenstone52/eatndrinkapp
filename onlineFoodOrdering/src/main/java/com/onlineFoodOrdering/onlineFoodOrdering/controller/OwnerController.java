@@ -100,17 +100,17 @@ public class OwnerController {
         restaurantService.updateRestaurantInfo(restaurantId,request);
     }
 
-    @GetMapping("/restaurants/{restaurantId}/privateInfo")
+    @PostMapping("/restaurants/{restaurantId}/privateInfo")
     public RestaurantPrivateInfoResponse getRestaurantPrivateInfo(@PathVariable Long restaurantId, @RequestBody RestaurantDeleteRequest request){
         return restaurantService.getRestaurantPrivateInfo(restaurantId,request);
     }
 
-    @GetMapping("/restaurants/{restaurantId}/income")
+    @PostMapping("/restaurants/{restaurantId}/income")
     public String getTotalRestaurantIncome(@PathVariable Long restaurantId, @RequestBody RestaurantDeleteRequest request){
         return restaurantService.getTotalRestaurantIncome(restaurantId,request);
     }
 
-    @GetMapping("/restaurants/{restaurantId}/profit")
+    @PostMapping("/restaurants/{restaurantId}/profit")
     public String getTotalRestaurantProfit(@PathVariable Long restaurantId, @RequestBody RestaurantDeleteRequest request){
         return restaurantService.getTotalRestaurantProfit(restaurantId,request);
     }
@@ -122,7 +122,7 @@ public class OwnerController {
 
     @ExceptionHandler(RestaurantIncorrectPasswordException.class)
     public ResponseEntity<String> handleRestaurantIncorrectPasswordException(RestaurantIncorrectPasswordException exception){
-        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(MenuNotFoundException.class)
@@ -152,6 +152,31 @@ public class OwnerController {
 
     @ExceptionHandler(RestaurantAlreadyExistsException.class)
     public ResponseEntity<String> handleRestaurantAlreadyExistsException(RestaurantAlreadyExistsException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(IllegalPricingException.class)
+    public ResponseEntity<String> handleIllegalPricingException(IllegalPricingException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(FoodDrinkAlreadyExistsException.class)
+    public ResponseEntity<String> handleFoodDrinkAlreadyExistsException(FoodDrinkAlreadyExistsException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(UniqueTaxNumberException.class)
+    public ResponseEntity<String> handleUniqueTaxNumberException(UniqueTaxNumberException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(InvalidValueException.class)
+    public ResponseEntity<String> handleInvalidValueException(InvalidValueException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(OwnerAlreadyPartnerException.class)
+    public ResponseEntity<String> handleOwnerAlreadyPartnerException(OwnerAlreadyPartnerException exception){
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
     }
 }

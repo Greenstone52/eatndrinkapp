@@ -3,8 +3,7 @@ package com.onlineFoodOrdering.onlineFoodOrdering.service;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.FoodDrink;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Menu;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Restaurant;
-import com.onlineFoodOrdering.onlineFoodOrdering.exception.FoodDrinkNotFoundException;
-import com.onlineFoodOrdering.onlineFoodOrdering.exception.MenuNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.FoodDrinkRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.MenuRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.RestaurantRepository;
@@ -68,6 +67,14 @@ public class FoodDrinkService {
 
         Menu menu = menuRepository.findById(menuId).orElseThrow(()-> new MenuNotFoundException("There is no such a menu."));
 
+        if(request.getCostPrice() >= request.getSalesPrice()){
+            throw new IllegalPricingException("Please enter appropriate values for cost and sales prices.");
+        }
+
+        if(foodDrinkRepository.findFoodDrinkByMenuIdAndName(menuId,request.getName()) != null){
+            throw new FoodDrinkAlreadyExistsException("The food or drink you entered was already saved.");
+        }
+
         FoodDrink foodDrink = new FoodDrink(menu,request.getName(),request.getSalesPrice(),request.getCostPrice());
         foodDrinkRepository.save(foodDrink);
         return foodDrink;
@@ -76,6 +83,15 @@ public class FoodDrinkService {
     public void updateFoodDrink(Long foodDrinkId,FoodDrinkCreateRequest request){
 
         FoodDrink foodDrink = foodDrinkRepository.findById(foodDrinkId).orElseThrow(()-> new FoodDrinkNotFoundException("There is no such a food or a drink."));
+
+        if(request.getCostPrice() >= request.getSalesPrice()){
+            throw new IllegalPricingException("Please enter appropriate values for cost and sales prices.");
+        }
+
+        if(foodDrinkRepository.findFoodDrinkByIdAndName(foodDrinkId,request.getName()) != null){
+            throw new FoodDrinkAlreadyExistsException("The food or drink you entered was already saved.");
+        }
+
         foodDrink.setSalesPrice(request.getSalesPrice());
         foodDrink.setCostPrice(request.getCostPrice());
         foodDrink.setName(request.getName());
@@ -92,7 +108,7 @@ public class FoodDrinkService {
             foodDrinkRepository.deleteById(foodDrinkId);
             return "The food or drink called " + name + " was deleted from the system successfully.";
         }else{
-            return "The password entered is incorrect";
+            throw new RestaurantIncorrectPasswordException("The password entered is incorrect.");
         }
     }
 }

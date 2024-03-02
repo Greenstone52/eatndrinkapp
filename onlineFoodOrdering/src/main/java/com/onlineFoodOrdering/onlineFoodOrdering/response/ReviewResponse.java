@@ -12,8 +12,8 @@ public class ReviewResponse {
     private short point;
 
     public ReviewResponse(Review review){
-        customerName = review.getCustomer().getDetailsOfUser().getFirstName().substring(0,3) +"*** "
-                + review.getCustomer().getDetailsOfUser().getLastName().substring(0,3) + "***";
+        customerName = review.getCustomer().getDetailsOfUser().getFirstName().substring(0,1) +"*** "
+                + review.getCustomer().getDetailsOfUser().getLastName().substring(0,1) + "***";
         restaurantName = review.getRestaurant().getName();
         title = review.getTitle();
         text = review.getText();

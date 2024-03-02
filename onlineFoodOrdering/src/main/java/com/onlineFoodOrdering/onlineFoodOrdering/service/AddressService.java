@@ -3,6 +3,7 @@ package com.onlineFoodOrdering.onlineFoodOrdering.service;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Address;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.AddressNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.AddressTitleAlreadyExistsException;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.CustomerNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.AddressRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.CustomerRepository;
@@ -28,6 +29,12 @@ public class AddressService {
     public void addAnAddress(Long id, AddressCreateRequest address){
         Customer customer = findCustomer(id);
 
+        Address address1 = addressRepository.findAddressByCustomerIdAndAddressTitle(id,address.getAddressTitle()).orElse(null);
+
+        if(address1 != null){
+            throw new AddressTitleAlreadyExistsException("You already use this address title for another address.");
+        }
+
         if(customer != null){
             Address newAddress = new Address();
             newAddress.setAddressTitle(address.getAddressTitle());
@@ -45,13 +52,15 @@ public class AddressService {
     }
 
     public String updateAnAddress(Long id, String addressTitle, AddressUpdateRequest request) throws Exception{
-        Customer customer = findCustomer(id);
+        Customer customer = customerRepository.findById(id).orElseThrow(()-> new CustomerNotFoundException("There is no such an customer."));
+
         Address existAddress = addressRepository
                 .findAddressByCustomerIdAndAddressTitle(customer.getId(),addressTitle)
-                .orElse(null);
+                .orElseThrow(()-> new AddressNotFoundException("There is no such an address has this title."));
 
-        if(existAddress == null){
-            throw new AddressNotFoundException("There is no such an address has this title.");
+        Address address = addressRepository.findAddressByCustomerIdAndAddressTitle(customer.getId(),request.getAddressTitle()).orElse(null);
+        if(address != null){
+            throw new AddressTitleAlreadyExistsException("The address has title has already exists.");
         }
 
         existAddress.setAddressTitle(request.getAddressTitle());
@@ -76,25 +85,18 @@ public class AddressService {
 
         Address address = addressRepository
                 .findAddressByCustomerIdAndAddressTitle(id,addressTitle)
-                .orElse(null);
+                .orElseThrow(()-> new AddressNotFoundException("There is no such an address."));
 
-        if(address == null){
-            return "There is no such an address.";
-        }else{
-            addressRepository.deleteById(address.getId());
-            return "The address removed from the system.";
-        }
-
+        addressRepository.deleteById(address.getId());
+        return "The address removed from the system.";
     }
 
     public AddressResponse getOneAddressOfTheCustomerAndAddressTitle(Long id,String title){
 
         if(customerRepository.findById(id) == null){
             throw new CustomerNotFoundException("There is no such a customer.");
-        }else if(addressRepository.findAddressByCustomerIdAndAddressTitle(id,title) == null){
-            throw new CardNotFoundException("There is no such a card has this title.");
         }else{
-            Address address = addressRepository.findAddressByCustomerIdAndAddressTitle(id,title).orElse(null);
+            Address address = addressRepository.findAddressByCustomerIdAndAddressTitle(id,title).orElseThrow(() -> new AddressNotFoundException("There is no such an address has this title."));
             AddressResponse response = new AddressResponse(address);
             return response;
         }

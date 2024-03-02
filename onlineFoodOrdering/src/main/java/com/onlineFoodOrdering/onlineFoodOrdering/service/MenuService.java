@@ -5,6 +5,7 @@ import com.onlineFoodOrdering.onlineFoodOrdering.entity.Menu;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Restaurant;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.MenuAlreadyExistsException;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.MenuNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantIncorrectPasswordException;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.FoodDrinkRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.MenuRepository;
@@ -101,7 +102,7 @@ public class MenuService {
                 menuRepository.deleteById(menuId);
                 return "The menu was removed from the system successfully.";
             }else{
-                return "The password entered is incorrect.";
+                throw new RestaurantIncorrectPasswordException("The password entered is incorrect.");
             }
     }
 }

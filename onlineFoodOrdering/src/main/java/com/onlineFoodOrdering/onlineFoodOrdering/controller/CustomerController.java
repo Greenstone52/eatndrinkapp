@@ -107,17 +107,22 @@ public class CustomerController {
         return reviewService.getAllTheReviewsOfTheCustomer(customerId);
     }
 
-    @PostMapping("/reviews/{customerId}/{restaurantId}")
-    public String addAReview(@PathVariable Long customerId, @RequestBody ReviewCreateRequest review, @PathVariable Long restaurantId){
-        return reviewService.addAReview(customerId,review,restaurantId);
+    //@PostMapping("/reviews/{customerId}/{restaurantId}")
+    //public String addAReview(@PathVariable Long customerId, @RequestBody ReviewCreateRequest review, @PathVariable Long restaurantId){
+    //    return reviewService.addAReview(customerId,review,restaurantId);
+    //}
+
+    @PostMapping("/reviews/customers/{customerId}/orders/{orderId}")
+    public String addAReview(@PathVariable Long customerId, @RequestBody ReviewCreateRequest review, @PathVariable Long orderId){
+        return reviewService.addAReview(customerId,review,orderId);
     }
 
-    @PutMapping("/reviews/{customerId}/{reviewId}")
+    @PutMapping("/reviews/{reviewId}/customers/{customerId}")
     public String updateReview(@PathVariable Long customerId, @RequestBody ReviewCreateRequest review,@PathVariable Long reviewId){
         return reviewService.updateReview(customerId,review,reviewId);
     }
 
-    @DeleteMapping("/reviews/{customerId}/{reviewId}")
+    @DeleteMapping("/reviews/{reviewId}/customers/{customerId}")
     public String deleteReview(@PathVariable Long customerId, @PathVariable Long reviewId){
         return reviewService.deleteReview(customerId,reviewId);
     }
@@ -142,7 +147,7 @@ public class CustomerController {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(CustomerNotFoundException.class)
+    @ExceptionHandler(RestaurantNotFoundException.class)
     public ResponseEntity<String> handleRestaurantNotFoundException(RestaurantNotFoundException exception){
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
@@ -152,4 +157,63 @@ public class CustomerController {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(AddressTitleAlreadyExistsException.class)
+    public ResponseEntity<String> handleAddressTitleAlreadyExistsException(AddressTitleAlreadyExistsException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(CardTitleAlreadyExistsException.class)
+    public ResponseEntity<String> handleCardTitleAlreadyExistsException(CardTitleAlreadyExistsException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(CardForbiddenValuesException.class)
+    public ResponseEntity<String> handleCardForbiddenValuesException(CardForbiddenValuesException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(UserForbiddenValuesException.class)
+    public ResponseEntity<String> handleCustomerForbiddenValuesException(UserForbiddenValuesException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(InvalidValueException.class)
+    public ResponseEntity<String> handleInvalidValueException(InvalidValueException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ImpossibleOrderException.class)
+    public ResponseEntity<String> handleImpossibleOrderException(ImpossibleOrderException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(FoodDrinkNotFoundException.class)
+    public ResponseEntity<String> handleFoodDrinkNotFoundException(FoodDrinkNotFoundException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(OrderIsNotYoursException.class)
+    public ResponseEntity<String> handleOrderIsNotYoursException(OrderIsNotYoursException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(OrderCannotBeCancelledException.class)
+    public ResponseEntity<String> handleOrderCannotBeCancelledException(OrderCannotBeCancelledException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ReviewAlreadyExistsException.class)
+    public ResponseEntity<String> handleReviewAlreadyExistsException(ReviewAlreadyExistsException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(IllegalReviewRequestException.class)
+    public ResponseEntity<String> handleIllegalReviewRequestException(IllegalReviewRequestException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(ReviewIsNotYoursException.class)
+    public ResponseEntity<String> handleReviewIsNotYoursException(ReviewIsNotYoursException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
 }

@@ -1,20 +1,19 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
-import com.onlineFoodOrdering.onlineFoodOrdering.exception.CustomerNotFoundException;
-import com.onlineFoodOrdering.onlineFoodOrdering.exception.FoodDrinkNotFoundException;
-import com.onlineFoodOrdering.onlineFoodOrdering.exception.OrderNotFoundException;
-import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OrderCreateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OrderUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OrderResponse;
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,55 +29,67 @@ public class OrderService {
     private ShareRatioRepository shareRatioRepository;
     private OwnerRepository ownerRepository;
     private MenuRepository menuRepository;
+    private AddressRepository addressRepository;
 
     public Customer findCustomer(Long id){
         return customerRepository.findById(id).orElse(null);
     }
 
     public String setAnOrder(Long id, OrderCreateRequest request, String cardNumber){
-        Customer customer = findCustomer(id);
-        Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId()).orElseThrow(()->new RestaurantNotFoundException("There is no such a restaurant."));
+
+        if(findCustomer(id) == null){
+            throw new CustomerNotFoundException("There is no such a customer.");
+        }
+
+        if(addressRepository.findAddressByCustomerId(id).isEmpty()){
+            throw new AddressNotFoundException("You cannot order anything since you have not any address saved.");
+        }else if(addressRepository.findAddressByCustomerIdAndAddressTitle(id,request.getAddressTitle()).orElse(null) == null){
+            throw new AddressNotFoundException("There is no such an address saved in the system.");
+        }
+
+        Address address = addressRepository.findAddressByCustomerIdAndAddressTitle(id,request.getAddressTitle()).get();
+//
+        //if(!address.getCustomer().getId().equals(id)){
+        //    throw new AddressNotFoundException("You have not such an address.");
+        //}
+
+        //Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId()).orElseThrow(()->new RestaurantNotFoundException("There is no such a restaurant."));
         FoodDrink foodDrink = foodDrinkRepository.findById(request.getFoodDrinkId()).orElseThrow(()-> new FoodDrinkNotFoundException("There is no such a food or a drink."));
+        Restaurant restaurant = foodDrink.getMenu().getRestaurant();
 
         Card card = cardRepository.findCardByCustomerIdAndCardNumber(id,cardNumber).orElseThrow(()->new CardNotFoundException("There is no such a card has this card number"));
 
-        if(card == null){
-            throw new CardNotFoundException("You have no such a card has this card number.");
-        }else{
-            if(foodDrink != null && restaurant != null){
-                if(card.getBalance() >= foodDrink.getSalesPrice()){
-                    Order order = new Order();
-                    Menu menu = menuRepository.findById(request.getMenuId()).orElse(null);
-                    FoodDrink foodDrink1 = foodDrinkRepository.findById(request.getFoodDrinkId()).orElse(null);
-                    order.setCustomer(customer);
-                    order.setRestaurant(restaurant);
-                    order.setMenu(menu);
-                    order.setFoodDrink(foodDrink1);
-                    orderRepository.save(order);
+        if(card.getBalance() >= foodDrink.getSalesPrice()){
 
-                    // Money is added to the bank account of the restaurant
-                    restaurant.setNetEndorsement(restaurant.getNetEndorsement() + foodDrink.getSalesPrice());
-                    restaurant.setNetProfit(restaurant.getNetProfit() + foodDrink.getProfit());
-                    restaurantRepository.save(restaurant);
+            Order order = new Order();
+            //Menu menu = menuRepository.findById(foodDrink.getMenu().getId()).orElseThrow(()-> new MenuNotFoundException("There is no such a menu."));
+            order.setCustomer(findCustomer(id));
+            order.setRestaurant(foodDrink.getMenu().getRestaurant());
+            order.setMenu(foodDrink.getMenu());
+            order.setFoodDrink(foodDrink);
 
-                    // ShareRatio process
-                    List<ShareRatio> shareRatioList = shareRatioRepository.findShareRatioByRestaurantId(restaurant.getId());
-                    for (int i = 0; i < shareRatioList.size(); i++) {
-                        double shareRatio = shareRatioList.get(i).getShareRatio();
-                        Owner owner = ownerRepository.findById(shareRatioList.get(i).getOwner().getId()).orElse(null);
-                        owner.setBalance(owner.getBalance() + foodDrink.getProfit()*shareRatio);
-                        ownerRepository.save(owner);
-                    }
-                    card.setBalance(card.getBalance()- foodDrink.getSalesPrice());
-                    cardRepository.save(card);
-                    return "Your order is processed on the system.";
-                }
-                return "You have not enough balance for this order.";
+            order.setAddress(address);
+            orderRepository.save(order);
+            // Money is added to the bank account of the restaurant
+            restaurant.setNetEndorsement(restaurant.getNetEndorsement() + foodDrink.getSalesPrice());
+            restaurant.setNetProfit(restaurant.getNetProfit() + foodDrink.getProfit());
+            restaurantRepository.save(restaurant);
+
+            // ShareRatio process
+            List<ShareRatio> shareRatioList = shareRatioRepository.findShareRatioByRestaurantId(restaurant.getId());
+
+            for (int i = 0; i < shareRatioList.size(); i++) {
+                double shareRatio = shareRatioList.get(i).getShareRatio();
+                Owner owner = ownerRepository.findById(shareRatioList.get(i).getOwner().getId()).orElse(null);
+                owner.setBalance(owner.getBalance() + foodDrink.getProfit()*(shareRatio/100));
+                ownerRepository.save(owner);
             }
 
-            return "There is a problem here. Please check the inputs.";
+            card.setBalance(card.getBalance()- foodDrink.getSalesPrice());
+            cardRepository.save(card);
+            return "Your order is processed on the system.";
         }
-
+        return "You have not enough balance for this order.";
     }
 
     public List<OrderResponse> getAllTheOrdersOfTheCustomer(Long id){
@@ -93,7 +104,7 @@ public class OrderService {
         //    }
         //}
 
-        if(customerRepository.findById(id) == null){
+        if(findCustomer(id) == null){
             throw new CustomerNotFoundException("There is no such a customer.");
         }
 
@@ -132,11 +143,11 @@ public class OrderService {
             Duration duration = Duration.between(order.getDate(), currentDate);
             long minutesDifference = duration.toMinutes();
 
-            if(minutesDifference < 1){
+            if(minutesDifference < 10){
                 orderRepository.deleteById(orderId);
                 return "Your order was deleted successfully.";
             }else{
-                return "It is too late to delete the order. 1 minutes lasted.";
+                return "It is too late to delete the order. 10 minutes lasted.";
             }
 
         } else if (order != null && !(order.getCustomer().getId().equals(id))) {
@@ -150,30 +161,28 @@ public class OrderService {
 
         LocalDateTime currentDate = LocalDateTime.now();
 
-        Order order = orderRepository.findById(orderId).orElse(null);
+        Order order = orderRepository.findById(orderId).orElseThrow(()-> new OrderNotFoundException("There is no such an order"));
 
-        if (order != null && order.getCustomer().getId().equals(id)) {
+        if (order.getCustomer().getId().equals(id)) {
 
             Duration duration = Duration.between(order.getDate(), currentDate);
             long minutesDifference = duration.toMinutes();
 
-            if(minutesDifference <15){
-                Menu menu = menuRepository.findById(request.getMenuId()).orElse(null);
-                FoodDrink foodDrink = foodDrinkRepository.findById(request.getFoodDrinkId()).orElse(null);
-                order.setMenu(menu);
+            if(minutesDifference <10){
+                FoodDrink foodDrink = foodDrinkRepository.findById(request.getFoodDrinkId()).orElseThrow(()-> new FoodDrinkNotFoundException("There is no such a food or drink."));
+                order.setMenu(foodDrink.getMenu());
                 order.setFoodDrink(foodDrink);
+                order.setDate(LocalDateTime.now());
                 orderRepository.save(order);
 
                 return "Your order was updated successfully.";
 
             }else{
-                return "It is too late to update the order. 15 minutes lasted.";
+                throw new OrderCannotBeCancelledException("It is too late to update the order. 10 minutes lasted.");
             }
 
-        } else if (order != null && !(order.getCustomer().getId().equals(id))) {
-            return "Forbidden request!";
+        } else {
+            throw new OrderIsNotYoursException("Forbidden request!");
         }
-
-        return "There is no such an order you have.";
     }
 }

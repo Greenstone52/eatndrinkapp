@@ -1,8 +1,7 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
-import com.onlineFoodOrdering.onlineFoodOrdering.exception.OwnerNotFoundException;
-import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantIncorrectPasswordException;
-import com.onlineFoodOrdering.onlineFoodOrdering.exception.RestaurantNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.enums.Gender;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.compositeKey.ShareRatioKey;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
@@ -14,6 +13,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -190,16 +191,19 @@ public class OwnerService {
 
             for (int i = 0; i < shareRatioList.size(); i++) {
                 if(shareRatioList.get(i).getOwner() == owner){
-                    return "The owner was already an partner of this restaurant.";
+                    throw new OwnerAlreadyPartnerException("The owner was already an partner of this restaurant.");
                 }
             }
 
-            //restaurant.getOwners().add(owner);
-            ShareRatioKey sRKey = new ShareRatioKey(ownerId,restaurantId);
-            ShareRatio shareRatio = new ShareRatio(sRKey,owner,restaurant,request.getShareRatio());
-            shareRatioRepository.save(shareRatio);
-            return "The process was completed successfully.";
-
+            if(request.getShareRatio() > 100){
+                throw new InvalidValueException("Please input a value between 0 and 100.");
+            }else{
+                //restaurant.getOwners().add(owner);
+                ShareRatioKey sRKey = new ShareRatioKey(ownerId,restaurantId);
+                ShareRatio shareRatio = new ShareRatio(sRKey,owner,restaurant,request.getShareRatio());
+                shareRatioRepository.save(shareRatio);
+                return "The process was completed successfully.";
+            }
 
             //for (int i = 0; i < restaurant.getOwners().size(); i++) {
             //    if(restaurant.getOwners().get(i) == owner){
@@ -213,20 +217,36 @@ public class OwnerService {
             //    return "The process was completed successfully.";
             //}
         }else{
-            throw new RestaurantIncorrectPasswordException("The password written is incorrect.");
+            throw new RestaurantIncorrectPasswordException("Incorrect password.");
         }
     }
 
     public String updateOneOwner(UserUpdateRequest request, Long id){
         Owner owner = ownerRepository.findById(id).orElseThrow(()-> new OwnerNotFoundException("There is no such an owner."));
 
-        owner.getDetailsOfUser().setGender(request.getGender());
+        try{
+            owner.getDetailsOfUser().setGender(Gender.valueOf(request.getGender()));
+        }catch (IllegalArgumentException exception){
+            throw new InvalidValueException("Please, enter valid gender like MALE, FEMALE.");
+        }
+
         owner.getDetailsOfUser().setGsm(request.getGsm());
         owner.getDetailsOfUser().setLastName(request.getLastName());
         owner.getDetailsOfUser().setFirstName(request.getLastName());
-        owner.getDetailsOfUser().setBirthDate(request.getBirthDate());
-        detailsOfUserRepository.save(owner.getDetailsOfUser());
-        return "The details of the owner was updated successfully.";
+
+        try {
+            owner.getDetailsOfUser().setBirthDate(LocalDate.parse(request.getBirthDate()));
+        }catch (DateTimeParseException exception){
+            throw new InvalidValueException("Please, enter valid date in this format yyyy-mm-dd.");
+        }
+
+        try {
+            detailsOfUserRepository.save(owner.getDetailsOfUser());
+            return "The details of the customer was updated successfully.";
+        }catch (RuntimeException exception){
+            throw new UserForbiddenValuesException("Please enter valid values");
+        }
+
     }
 
     public String deleteOneOwner(Long id){

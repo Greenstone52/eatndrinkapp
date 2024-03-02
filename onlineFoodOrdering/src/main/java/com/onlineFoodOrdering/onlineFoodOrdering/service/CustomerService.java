@@ -1,17 +1,21 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
+import com.onlineFoodOrdering.onlineFoodOrdering.enums.Gender;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.UserForbiddenValuesException;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.CustomerNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.InvalidValueException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.CustomerResponse;
-import com.onlineFoodOrdering.onlineFoodOrdering.response.OwnerResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.RegisterRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.user.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -181,18 +185,35 @@ public class CustomerService {
         //customerRepository.save(updatedCustomer);
 
         Customer customer = customerRepository.findById(id).orElse(null);
+
+        if(customer == null){
+            throw new CustomerNotFoundException("There is no such a customer.");
+        }
+
         User user = userRepository.findUserByUserDetailsIdAndRole(customer.getId(),Role.OWNER);
 
-        if(customer != null){
-            customer.getDetailsOfUser().setGender(request.getGender());
-            customer.getDetailsOfUser().setGsm(request.getGsm());
-            customer.getDetailsOfUser().setLastName(request.getLastName());
-            customer.getDetailsOfUser().setFirstName(request.getLastName());
-            customer.getDetailsOfUser().setBirthDate(request.getBirthDate());
+        try{
+            customer.getDetailsOfUser().setGender(Gender.valueOf(request.getGender()));
+        }catch (IllegalArgumentException exception){
+            throw new InvalidValueException("Please, enter valid gender like MALE, FEMALE.");
+        }
+
+        customer.getDetailsOfUser().setGsm(request.getGsm());
+        customer.getDetailsOfUser().setLastName(request.getLastName());
+        customer.getDetailsOfUser().setFirstName(request.getLastName());
+
+        try {
+            customer.getDetailsOfUser().setBirthDate(LocalDate.parse(request.getBirthDate()));
+        }catch (DateTimeParseException exception){
+            throw new InvalidValueException("Please, enter valid date in this format yyyy-mm-dd.");
+        }
+
+
+        try {
             detailsOfUserRepository.save(customer.getDetailsOfUser());
             return "The details of the customer was updated successfully.";
-        }else{
-            throw new CustomerNotFoundException("There is no such a customer.");
+        }catch (RuntimeException exception){
+            throw new UserForbiddenValuesException("Please enter valid values");
         }
 
     }

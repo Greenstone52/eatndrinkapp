@@ -13,12 +13,10 @@ public class UserUpdateRequest {
     //private String password;
     private String firstName;
     private String lastName;
-
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
+    private String gender;
     private String gsm;
 
     @DateTimeFormat(pattern = "dd/MM/yyyy")
-    private LocalDate birthDate;
+    private String birthDate;
 
 }

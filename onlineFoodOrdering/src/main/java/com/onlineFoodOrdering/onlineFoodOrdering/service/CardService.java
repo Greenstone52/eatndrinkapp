@@ -2,17 +2,20 @@ package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Card;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.CardForbiddenValuesException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.CardNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.CardTitleAlreadyExistsException;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.CustomerNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.CardRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.CustomerRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.CardCreateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.CardDeleteRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.CardResponse;
+import jakarta.validation.ConstraintViolationException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,7 +31,7 @@ public class CardService {
 
     public List<CardResponse> getAllTheCardsOfTheCustomer(Long id){
 
-        if(customerRepository.findById(id) == null){
+        if(findCustomer(id) == null){
             throw new CustomerNotFoundException("There is no such a customer.");
         }else{
             List<Card> cards = cardRepository.findCardByCustomerId(id);
@@ -44,6 +47,12 @@ public class CardService {
             throw new CustomerNotFoundException("There is no such a customer.");
         }
 
+        Card card1 = cardRepository.findCardByCustomerIdAndName(id,card.getName()).orElse(null);
+
+        if(card1 != null){
+            throw new CardTitleAlreadyExistsException("You have already a card has this title.");
+        }
+
         Card newCard = new Card();
         newCard.setCardNumber(card.getCardNumber());
         newCard.setCvc(card.getCvc());
@@ -52,7 +61,12 @@ public class CardService {
         newCard.setMonth(card.getMonth());
         newCard.setCustomer(customer);
 
-        cardRepository.save(newCard);
+        try{
+            cardRepository.save(newCard);
+        }catch (ConstraintViolationException exception){
+            throw new CardNotFoundException("Please enter appropriate values for the card.");
+        }
+
     }
 
     public void updateSelectedCard(Long id,String cardNumber,CardCreateRequest updateCard){
@@ -60,10 +74,24 @@ public class CardService {
         if(customerRepository.findById(id) == null){
             throw new CustomerNotFoundException("There is no such a customer.");
         }else if(cardRepository.findCardByCustomerIdAndCardNumber(id,cardNumber) == null){
-            throw new CardNotFoundException("There is no such a card has this card number.");
+            throw new CardNotFoundException("You have no such a card has this card number.");
         }
 
         Card card = cardRepository.findCardByCustomerIdAndCardNumber(id,cardNumber).orElse(null);
+
+        if(card == null){
+            throw new CardNotFoundException("There is no such a card.");
+        }
+
+        Card exCard = cardRepository.findCardByCustomerIdAndName(id, updateCard.getName()).orElse(null);
+
+        if(exCard != null){
+            throw new CardTitleAlreadyExistsException("You have already have a card has this title.");
+        }
+
+        //if(cardRepository.findCardByCustomerIdAndName(id,updateCard.getName()) != null){
+        //    throw new CardTitleAlreadyExistsException("You have already have a card has this title.");
+        //}
 
         card.setName(updateCard.getName());
         card.setCvc(updateCard.getCvc());
@@ -71,7 +99,12 @@ public class CardService {
         card.setYear(updateCard.getYear());
         card.setMonth(updateCard.getMonth());
 
-        cardRepository.save(card);
+        try{
+            cardRepository.save(card);
+        }catch (RuntimeException exception){
+            throw new CardForbiddenValuesException("Please enter appropriate values for the card.");
+        }
+
     }
 
 
@@ -100,7 +133,7 @@ public class CardService {
 
         //Customer customer = findCustomer(id);
 
-        if(customerRepository.findById(id) == null){
+        if(findCustomer(id) == null){
             throw new CustomerNotFoundException("There is no such a customer.");
         }
 

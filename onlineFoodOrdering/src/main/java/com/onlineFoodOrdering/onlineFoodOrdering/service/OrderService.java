@@ -183,6 +183,13 @@ public class OrderService {
 
         Order order = orderRepository.findById(orderId).orElseThrow(()-> new OrderNotFoundException("There is no such an order"));
 
+        FoodDrink fdDrink = foodDrinkRepository.findById(request.getFoodDrinkId()).orElseThrow(()-> new FoodDrinkNotFoundException("There is no such a food or drink."));
+        Restaurant restaurant = fdDrink.getMenu().getRestaurant();
+
+        if(!(restaurant == order.getRestaurant())){
+            throw new IllegalOrderException("Please choose a food or drink from the same restaurant.");
+        }
+
         if (order.getCustomer().getId().equals(id)) {
 
             Duration duration = Duration.between(order.getDate(), currentDate);

@@ -226,4 +226,9 @@ public class CustomerController {
     public ResponseEntity<String> handleInvalidPasswordException(InvalidPasswordException exception){
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(IllegalOrderException.class)
+    public ResponseEntity<String> handleIllegalOrderException(IllegalOrderException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
 }

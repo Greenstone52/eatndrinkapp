@@ -2,6 +2,7 @@ package com.onlineFoodOrdering.onlineFoodOrdering.service;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.enums.Gender;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.IncorrectPasswordException;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.UserForbiddenValuesException;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.CustomerNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.InvalidValueException;
@@ -218,13 +219,22 @@ public class CustomerService {
 
     }
 
-    public void updatePassword(){
+    //public String deleteCustomer(Long id){
+//
+    //    Customer customer = findCustomer(id);
+//
+    //    if(customer == null){
+    //        throw new CustomerNotFoundException("There is no such a customer.");
+    //    }
+//
+    //    User user = userRepository.findUserByUserDetailsIdAndRole(customer.getId(),Role.CUSTOMER);
+//
+    //    String email = user.getEmail();
+    //    customerRepository.deleteById(customer.getId());
+    //    return "The user whose email is "+email+" was removed from the system.";
+    //}
 
-    }
-
-
-    // The constraint about password will be added.
-    public String deleteCustomer(Long id){
+    public String deleteCustomer(Long id, CustomerDeleteRequest request){
 
         Customer customer = findCustomer(id);
 
@@ -234,9 +244,15 @@ public class CustomerService {
 
         User user = userRepository.findUserByUserDetailsIdAndRole(customer.getId(),Role.CUSTOMER);
 
-        String email = user.getEmail();
-        customerRepository.deleteById(customer.getId());
-        return "The user whose email is "+email+" was removed from the system.";
+        if(!request.getPassword().equals(request.getVerifyPassword())){
+            throw new InvalidPasswordException("Your verified password does not match with your new password.");
+        }else if(!passwordEncoder.matches(request.getPassword(),user.getPassword())){
+            throw new IncorrectPasswordException("Incorrect password.");
+        }else{
+            String email = user.getEmail();
+            customerRepository.deleteById(customer.getId());
+            return "The customer whose email is "+email+" was removed from the system.";
+        }
     }
 
 

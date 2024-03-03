@@ -75,9 +75,9 @@ public class CustomerController {
         customerService.updateCustomerInfo(customerId,request);
     }
 
-    @DeleteMapping("/customers/delete/{customerId}")
-    public String deleteCustomer(@PathVariable Long customerId){
-        return customerService.deleteCustomer(customerId);
+    @PostMapping("/customers/delete/{customerId}")
+    public String deleteCustomer(@PathVariable Long customerId, @RequestBody CustomerDeleteRequest request){
+        return customerService.deleteCustomer(customerId, request);
     }
 
     // Order
@@ -214,6 +214,16 @@ public class CustomerController {
 
     @ExceptionHandler(ReviewIsNotYoursException.class)
     public ResponseEntity<String> handleReviewIsNotYoursException(ReviewIsNotYoursException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(IncorrectPasswordException.class)
+    public ResponseEntity<String> handleIncorrectPasswordException(IncorrectPasswordException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<String> handleInvalidPasswordException(InvalidPasswordException exception){
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
     }
 }

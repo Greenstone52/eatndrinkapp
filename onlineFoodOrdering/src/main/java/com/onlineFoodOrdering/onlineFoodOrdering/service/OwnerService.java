@@ -249,10 +249,21 @@ public class OwnerService {
 
     }
 
-    public String deleteOneOwner(Long id){
+    public String deleteOneOwner(Long id,CustomerDeleteRequest request){
         Owner owner = ownerRepository.findById(id).orElseThrow(()-> new OwnerNotFoundException("There is no such an owner in the system."));
-        ownerRepository.delete(owner);
-        return "The owner is removed from the system.";
+
+        User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),Role.OWNER);
+
+        if(!request.getPassword().equals(request.getVerifyPassword())){
+            throw new InvalidPasswordException("Your verified password does not match with your new password.");
+        }else if(!passwordEncoder.matches(request.getPassword(),user.getPassword())){
+            throw new IncorrectPasswordException("Incorrect password.");
+        }else{
+            String email = user.getEmail();
+            ownerRepository.deleteById(owner.getId());
+            return "The owner whose email is "+email+" was removed from the system.";
+        }
+
     }
 
     public List<OwnerResponse> getTopNMostEarnedOwners(int n){

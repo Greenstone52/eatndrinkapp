@@ -2,6 +2,9 @@ package com.onlineFoodOrdering.onlineFoodOrdering.security.auth;
 
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.EmailAlreadyExistsException;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.IncorrectPasswordException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.UserNotFoundException;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.InvalidPasswordException;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.UserChangePasswordRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.user.Role;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.CustomerService;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.ManagerAdminService;
@@ -53,6 +56,11 @@ public class AuthenticationController {
         authenticationService.refreshToken(request,response);
     }
 
+    @PostMapping("/{userId}/changePassword")
+    public String changePassword(@PathVariable Long userId, @RequestBody UserChangePasswordRequest request){
+        return authenticationService.changePassword(userId,request);
+    }
+
     @ExceptionHandler(IncorrectPasswordException.class)
     public ResponseEntity<String> handleIncorrectPasswordException(IncorrectPasswordException exception){
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
@@ -61,5 +69,15 @@ public class AuthenticationController {
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<String> handleEmailAlreadyExistsException(EmailAlreadyExistsException exception){
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<String> handleInvalidPasswordException(InvalidPasswordException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
     }
 }

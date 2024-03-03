@@ -4,8 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.User;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.EmailAlreadyExistsException;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.IncorrectPasswordException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.UserNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.DetailsOfUserRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.UserRepository;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.InvalidPasswordException;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.UserChangePasswordRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.config.JwtService;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.token.Token;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.token.TokenRepository;
@@ -47,7 +50,10 @@ public class AuthenticationService {
 
         if(userException != null){
             throw new EmailAlreadyExistsException("The email has already exists.");
+        }else if (!(isEnoughLength(request.getPassword())) || !(isIncludeAnyNumber(request.getPassword()))) {
+            throw new InvalidPasswordException(isValidPassword(request.getPassword()));
         }
+
 
         if(request.getRole().equals(Role.CUSTOMER)){
             customerService.addACustomer(request);
@@ -155,5 +161,62 @@ public class AuthenticationService {
                 new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
             }
         }
+    }
+
+    public String changePassword(Long userId, UserChangePasswordRequest request) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("There is no such an user."));
+
+        if (!(passwordEncoder.matches(request.getOldPassword(), user.getPassword()))) {
+            throw new IncorrectPasswordException("There is no such an password");
+        } else if (request.getOldPassword().equals(request.getNewPassword())) {
+            throw new InvalidPasswordException("The new password cannot be same with beforehand.");
+        } else if (!request.getNewPassword().equals(request.getVerifyPassword())) {
+            throw new InvalidPasswordException("Your verified password does not match with your new password.");
+        } else if (!(isEnoughLength(request.getNewPassword())) || !(isIncludeAnyNumber(request.getNewPassword()))) {
+            throw new InvalidPasswordException(isValidPassword(request.getNewPassword()));
+        }  else {
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(user);
+            return "Your password was changed successfully!";
+        }
+
+    }
+
+    public String isValidPassword(String password){
+
+        String message = "";
+
+        if(!isEnoughLength(password)){
+            message+="The password must be at least 8 characters.\n";
+        }
+        if(!isIncludeAnyNumber(password)){
+            message+="The password must be includes at least one number.";
+        }
+
+        return message;
+    }
+
+    public boolean isEnoughLength(String password){
+        if(password.length() < 8){
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isIncludeAnyNumber(String password){
+
+        char c;
+        char[] numbers = {'0','1','2','3','4','5','6','7','8','9'};
+
+        for (int i = 0; i < password.length(); i++) {
+            c = password.charAt(i);
+
+            for (int j = 0; j < numbers.length; j++) {
+                if(c == numbers[j]){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

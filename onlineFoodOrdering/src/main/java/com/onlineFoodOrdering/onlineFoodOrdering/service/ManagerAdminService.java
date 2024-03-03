@@ -4,9 +4,14 @@ import com.onlineFoodOrdering.onlineFoodOrdering.entity.DetailsOfUser;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.ManagerAdmin;
 import com.onlineFoodOrdering.onlineFoodOrdering.entity.User;
 import com.onlineFoodOrdering.onlineFoodOrdering.enums.Gender;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.IncorrectPasswordException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.InvalidValueException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.UserForbiddenValuesException;
+import com.onlineFoodOrdering.onlineFoodOrdering.exception.UserNotFoundException;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.DetailsOfUserRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.ManagerAdminRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.UserRepository;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.InvalidPasswordException;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.UserUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.ManAdminResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.security.auth.RegisterRequest;
@@ -16,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -95,59 +101,86 @@ public class ManagerAdminService {
     }
 
     public String updateOneManagerAdmin(Long id, UserUpdateRequest request){
-        ManagerAdmin manAdmin = managerAdminRepository.findById(id).orElse(null);
+        ManagerAdmin manAdmin = managerAdminRepository.findById(id).orElseThrow(()->new UserNotFoundException("There is no such an user."));
 
         boolean isAdmin = false;
-        User user = new User();
+        User user;
 
-        if(manAdmin != null){
-            user = userRepository.findUserByUserDetailsIdAndRole(manAdmin.getId(),Role.MANAGER);
 
-            if(user == null){
-                user = userRepository.findUserByUserDetailsIdAndRole(manAdmin.getId(),Role.ADMIN);
-                isAdmin = true;
+        user = userRepository.findUserByUserDetailsIdAndRole(manAdmin.getId(),Role.MANAGER);
+
+        if(user == null){
+            user = userRepository.findUserByUserDetailsIdAndRole(manAdmin.getId(),Role.ADMIN);
+            isAdmin = true;
+        }
+
+        if(user != null){
+
+            try{
+                manAdmin.getDetailsOfUser().setGender(Gender.valueOf(request.getGender()));
+            }catch (IllegalArgumentException exception){
+                throw new InvalidValueException("Please, enter valid gender like MALE, FEMALE.");
             }
 
-            if(user != null){
-                manAdmin.getDetailsOfUser().setGender(Gender.valueOf(request.getGender()));
-                manAdmin.getDetailsOfUser().setGsm(request.getGsm());
-                manAdmin.getDetailsOfUser().setLastName(request.getLastName());
-                manAdmin.getDetailsOfUser().setFirstName(request.getFirstName());
+            manAdmin.getDetailsOfUser().setGsm(request.getGsm());
+            manAdmin.getDetailsOfUser().setLastName(request.getLastName());
+            manAdmin.getDetailsOfUser().setFirstName(request.getFirstName());
+
+            try {
                 manAdmin.getDetailsOfUser().setBirthDate(LocalDate.parse(request.getBirthDate()));
+            }catch (DateTimeParseException exception){
+                throw new InvalidValueException("Please, enter valid date in this format yyyy-mm-dd.");
+            }
+
+            try {
                 detailsOfUserRepository.save(manAdmin.getDetailsOfUser());
                 return isAdmin? "The details of the admin was updated successfully."
                         : "The details of the manager was updated successfully.";
-            }else{
-                return "There is no such a person in the system.";
+            }catch (RuntimeException exception){
+                throw new UserForbiddenValuesException("Please enter valid values");
             }
+
         }else{
-            return "There is no such a person in the system.";
+            throw isAdmin? new UserNotFoundException("There is no such an admin.")
+                    : new UserNotFoundException("There is no such an manager.");
         }
-
-
-
     }
 
-    public String deleteManagerAdmin(Long id){
+    public String deleteManagerAdmin(Long id, CustomerDeleteRequest request){
 
-        ManagerAdmin managerAdmin = managerAdminRepository.findById(id).orElse(null);
+        ManagerAdmin managerAdmin = managerAdminRepository.findById(id).orElseThrow(()->new UserNotFoundException("There is no such an user."));
 
-        if(managerAdmin == null){
-            return "There is no such an user.";
+        String role = "";
+
+        if(managerAdmin.getUser().getRole().equals(Role.ADMIN)){
+            role = "admin";
+        }else if(managerAdmin.getUser().getRole().equals(Role.MANAGER)){
+            role = "manager";
         }
-
-        System.out.println(managerAdmin.getUser().getEmail());
 
         User user = userRepository.findById(managerAdmin.getUser().getId()).orElse(null);
 
-        if(user == null){
-            return "There is no such an user.";
+        if(!request.getPassword().equals(request.getVerifyPassword())){
+            throw new InvalidPasswordException("Your verified password does not match with your new password.");
+        }else if(!passwordEncoder.matches(request.getPassword(),user.getPassword())){
+            throw new IncorrectPasswordException("Incorrect password.");
         }else{
             String email = user.getEmail();
             managerAdminRepository.deleteById(managerAdmin.getId());
-            // userRepository.deleteById(user.getId());
-            // An error may be occur here as orphanal remove is not working well.
-            return "The user whose email is "+email+" was removed from the system.";
+            return "The "+role+" whose email is "+email+" was removed from the system.";
         }
+
+
+        //if(user == null){
+        //    return "There is no such an user.";
+        //}else{
+        //
+        //
+        //    String email = user.getEmail();
+        //    managerAdminRepository.deleteById(managerAdmin.getId());
+        //    // userRepository.deleteById(user.getId());
+        //    // An error may be occur here as orphanal remove is not working well.
+        //    return "The user whose email is "+email+" was removed from the system.";
+        //}
     }
 }

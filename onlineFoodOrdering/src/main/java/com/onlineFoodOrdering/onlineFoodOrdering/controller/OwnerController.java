@@ -79,9 +79,9 @@ public class OwnerController {
         return ownerService.updateOneOwner(request,id);
     }
 
-    @DeleteMapping("/owners/{id}")
-    public String deleteOneOwner(@PathVariable Long id){
-        return ownerService.deleteOneOwner(id);
+    @PostMapping("/owners/{id}")
+    public String deleteOneOwner(@PathVariable Long id, @RequestBody CustomerDeleteRequest request){
+        return ownerService.deleteOneOwner(id,request);
     }
 
     // Restaurant
@@ -179,4 +179,16 @@ public class OwnerController {
     public ResponseEntity<String> handleOwnerAlreadyPartnerException(OwnerAlreadyPartnerException exception){
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler(IncorrectPasswordException.class)
+    public ResponseEntity<String> handleIncorrectPasswordException(IncorrectPasswordException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<String> handleInvalidPasswordException(InvalidPasswordException exception){
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
+
 }

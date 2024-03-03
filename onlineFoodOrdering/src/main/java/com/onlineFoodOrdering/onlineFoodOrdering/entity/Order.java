@@ -53,5 +53,12 @@ public class Order {
     @NotNull
     private Address address;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "cardId")
+    @JsonIgnore
+    @NotNull
+    private Card card;
+
+
     private LocalDateTime date = LocalDateTime.now();
 }

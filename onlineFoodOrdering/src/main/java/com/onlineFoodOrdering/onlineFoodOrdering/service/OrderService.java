@@ -67,6 +67,7 @@ public class OrderService {
             order.setRestaurant(foodDrink.getMenu().getRestaurant());
             order.setMenu(foodDrink.getMenu());
             order.setFoodDrink(foodDrink);
+            order.setCard(card);
 
             order.setAddress(address);
             orderRepository.save(order);
@@ -144,7 +145,26 @@ public class OrderService {
             long minutesDifference = duration.toMinutes();
 
             if(minutesDifference < 10){
+
+                order.getRestaurant().setNetEndorsement(order.getRestaurant().getNetEndorsement() - order.getFoodDrink().getSalesPrice());
+                order.getRestaurant().setNetProfit(order.getRestaurant().getNetProfit() - order.getFoodDrink().getProfit());
+                restaurantRepository.save(order.getRestaurant());
+
+
+                List<ShareRatio> shareRatioList = shareRatioRepository.findShareRatioByRestaurantId(order.getRestaurant().getId());
+
+                for (int i = 0; i < shareRatioList.size(); i++) {
+                    double shareRatio = shareRatioList.get(i).getShareRatio();
+                    Owner owner = ownerRepository.findById(shareRatioList.get(i).getOwner().getId()).orElse(null);
+                    owner.setBalance(owner.getBalance() - order.getFoodDrink().getProfit()*(shareRatio/100));
+                    ownerRepository.save(owner);
+                }
+
+                order.getCard().setBalance(order.getCard().getBalance() + order.getFoodDrink().getSalesPrice());
+                cardRepository.save(order.getCard());
+
                 orderRepository.deleteById(orderId);
+
                 return "Your order was deleted successfully.";
             }else{
                 return "It is too late to delete the order. 10 minutes lasted.";
@@ -169,10 +189,48 @@ public class OrderService {
             long minutesDifference = duration.toMinutes();
 
             if(minutesDifference <10){
+
+                // Old Order's profit get back from the accounts.
+                order.getRestaurant().setNetEndorsement(order.getRestaurant().getNetEndorsement() - order.getFoodDrink().getSalesPrice());
+                order.getRestaurant().setNetProfit(order.getRestaurant().getNetProfit() - order.getFoodDrink().getProfit());
+                restaurantRepository.save(order.getRestaurant());
+
+                order.getCard().setBalance(order.getCard().getBalance() + order.getFoodDrink().getSalesPrice());
+                cardRepository.save(order.getCard());
+
+                List<ShareRatio> shareRatioList = shareRatioRepository.findShareRatioByRestaurantId(order.getRestaurant().getId());
+
+                for (int i = 0; i < shareRatioList.size(); i++) {
+                    double shareRatio = shareRatioList.get(i).getShareRatio();
+                    Owner owner = ownerRepository.findById(shareRatioList.get(i).getOwner().getId()).orElse(null);
+                    owner.setBalance(owner.getBalance() - order.getFoodDrink().getProfit()*(shareRatio/100));
+                    ownerRepository.save(owner);
+                }
+
+                //New Order's operation
                 FoodDrink foodDrink = foodDrinkRepository.findById(request.getFoodDrinkId()).orElseThrow(()-> new FoodDrinkNotFoundException("There is no such a food or drink."));
                 order.setMenu(foodDrink.getMenu());
                 order.setFoodDrink(foodDrink);
                 order.setDate(LocalDateTime.now());
+                orderRepository.save(order);
+
+                // Money is added to the bank account of the restaurant
+                order.getRestaurant().setNetEndorsement(order.getRestaurant().getNetEndorsement() + foodDrink.getSalesPrice());
+                order.getRestaurant().setNetProfit(order.getRestaurant().getNetProfit() + foodDrink.getProfit());
+                restaurantRepository.save(order.getRestaurant());
+
+                // ShareRatio process
+                List<ShareRatio> shareRatioList2 = shareRatioRepository.findShareRatioByRestaurantId(order.getRestaurant().getId());
+
+                for (int i = 0; i < shareRatioList2.size(); i++) {
+                    double shareRatio = shareRatioList2.get(i).getShareRatio();
+                    Owner owner = ownerRepository.findById(shareRatioList2.get(i).getOwner().getId()).orElse(null);
+                    owner.setBalance(owner.getBalance() + foodDrink.getProfit()*(shareRatio/100));
+                    ownerRepository.save(owner);
+                }
+
+                order.getCard().setBalance(order.getCard().getBalance()- foodDrink.getSalesPrice());
+                cardRepository.save(order.getCard());
                 orderRepository.save(order);
 
                 return "Your order was updated successfully.";

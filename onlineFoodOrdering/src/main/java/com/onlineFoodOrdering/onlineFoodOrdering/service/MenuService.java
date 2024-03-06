@@ -17,6 +17,7 @@ import com.onlineFoodOrdering.onlineFoodOrdering.response.FoodDrinkResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.MenuWithFoodDrinkResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.MenuWithFoodDrinkResponseForCustomer;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class MenuService {
     private RestaurantRepository restaurantRepository;
     private MenuRepository menuRepository;
     private FoodDrinkRepository foodDrinkRepository;
+    private PasswordEncoder passwordEncoder;
 
     public String addMenu(Long restaurantId, MenuCreateRequest request){
         Menu menu = menuRepository.findMenuByNameAndRestaurantId(request.getName(),restaurantId).orElse(null);
@@ -98,7 +100,7 @@ public class MenuService {
 
             Restaurant restaurant = menu.getRestaurant();
 
-            if(restaurant.getPassword().equals(request.getPassword())){
+            if(passwordEncoder.matches(request.getPassword(),restaurant.getPassword())){
                 menuRepository.deleteById(menuId);
                 return "The menu was removed from the system successfully.";
             }else{

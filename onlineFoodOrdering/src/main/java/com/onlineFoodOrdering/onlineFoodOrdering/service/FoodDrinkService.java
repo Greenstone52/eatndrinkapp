@@ -10,6 +10,7 @@ import com.onlineFoodOrdering.onlineFoodOrdering.repository.RestaurantRepository
 import com.onlineFoodOrdering.onlineFoodOrdering.request.FoodDrinkCreateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.RestaurantDeleteRequest;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class FoodDrinkService {
     private FoodDrinkRepository foodDrinkRepository;
     private MenuRepository menuRepository;
     private RestaurantRepository restaurantRepository;
+    private PasswordEncoder passwordEncoder;
 
     //public List<FoodDrink> getAllTheFoodDrinksOfTheRestaurant(Long restaurantId){
     //    List<FoodDrink> foodDrinkList = new ArrayList<>();
@@ -103,7 +105,7 @@ public class FoodDrinkService {
         FoodDrink foodDrink = foodDrinkRepository.findById(foodDrinkId).orElseThrow(()->new FoodDrinkNotFoundException("There is no such a food or a drink."));
         Menu menu = foodDrink.getMenu();
         Restaurant restaurant = menu.getRestaurant();
-        if(restaurant.getPassword().equals(request.getPassword())){
+        if(passwordEncoder.matches(request.getPassword(),restaurant.getPassword())){
             String name = foodDrink.getName();
             foodDrinkRepository.deleteById(foodDrinkId);
             return "The food or drink called " + name + " was deleted from the system successfully.";

@@ -69,7 +69,6 @@ public class MenuService {
         }
 
         return responseList;
-        //return menuRepository.findMenuByRestaurantId(restaurantId);
     }
 
     public List<MenuWithFoodDrinkResponseForCustomer> getAllTheMenuOfTheRestaurantForCustomers(Long restaurantId){

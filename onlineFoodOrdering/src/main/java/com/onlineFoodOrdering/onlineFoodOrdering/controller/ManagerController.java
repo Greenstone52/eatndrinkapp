@@ -1,13 +1,12 @@
 package com.onlineFoodOrdering.onlineFoodOrdering.controller;
 
-import com.onlineFoodOrdering.onlineFoodOrdering.entity.Customer;
 import com.onlineFoodOrdering.onlineFoodOrdering.exception.*;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.InvalidPasswordException;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.OwnerResponseWithoutSRRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.UserUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.CustomerResponse;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.OwnerResponse;
-import com.onlineFoodOrdering.onlineFoodOrdering.service.CustomerDeleteRequest;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.CustomerDeleteRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.CustomerService;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.ManagerAdminService;
 import com.onlineFoodOrdering.onlineFoodOrdering.service.OwnerService;

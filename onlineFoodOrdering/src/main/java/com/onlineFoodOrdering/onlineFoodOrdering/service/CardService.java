@@ -89,10 +89,6 @@ public class CardService {
             throw new CardTitleAlreadyExistsException("You have already have a card has this title.");
         }
 
-        //if(cardRepository.findCardByCustomerIdAndName(id,updateCard.getName()) != null){
-        //    throw new CardTitleAlreadyExistsException("You have already have a card has this title.");
-        //}
-
         card.setName(updateCard.getName());
         card.setCvc(updateCard.getCvc());
         card.setCardNumber(updateCard.getCardNumber());
@@ -108,30 +104,8 @@ public class CardService {
     }
 
 
-    //@Post kullan
+    //use @Post
     public String deleteACard(Long id, CardDeleteRequest request){
-        //Customer customer = findCustomer(id);
-//
-        //CardDeleteRequest deletedCard = new CardDeleteRequest();
-        //String no = request.getCardNumber();
-        //deletedCard.setCardNumber(request.getCardNumber());
-//
-        //Card card = null;
-//
-        //if(customer != null){
-        //    card = cardRepository.findCardByCustomerIdAndCardNumber(customer.getId(),deletedCard.getCardNumber()).orElse(null);
-        //}else{
-        //    return "There is no such a customer has this id.";
-        //}
-//
-        //if(card != null){
-        //    cardRepository.deleteById(card.getId());
-        //    return "The card has this number "+ no + " was removed from the system.";
-        //}else{
-        //    return "There is no card has this card number";
-        //}
-
-        //Customer customer = findCustomer(id);
 
         if(findCustomer(id) == null){
             throw new CustomerNotFoundException("There is no such a customer.");

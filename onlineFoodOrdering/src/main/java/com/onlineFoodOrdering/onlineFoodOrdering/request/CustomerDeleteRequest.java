@@ -1,4 +1,4 @@
-package com.onlineFoodOrdering.onlineFoodOrdering.service;
+package com.onlineFoodOrdering.onlineFoodOrdering.request;
 
 import lombok.Data;
 

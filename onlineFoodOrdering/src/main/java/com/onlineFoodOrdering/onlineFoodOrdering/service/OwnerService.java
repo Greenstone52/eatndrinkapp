@@ -110,49 +110,16 @@ public class OwnerService {
 
     }
 
-    //public void addOneOwner(OwnerUserCreateRequest request){
-    //    Owner newOwner = new Owner();
-    //    User user = userRepository.findUserByUserDetailsIdAndRole(newOwner.getId(), Role.OWNER);
-    //    DetailsOfUser detailsOfUser = new DetailsOfUser();
-//
-    //    //newOwner.setBankAccount(owner.getBankAccount());
-    //    //newOwner.setRestaurants(owner.getRestaurants());
-//
-    //    user.setEmail(request.getEmail());
-    //    user.setPassword(request.getPassword());
-    //    user.setRole(request.getRole());
-    //    user.setUserDetailsId(newOwner.getId());
-//
-    //    //newOwner.setUsername(owner.getUsername());
-    //    detailsOfUser.setGsm(request.getGsm());
-    //    detailsOfUser.setGender(request.getGender());
-    //    detailsOfUser.setLastName(request.getLastName());
-    //    detailsOfUser.setFirstName(request.getFirstName());
-    //    detailsOfUser.setBirthDate(request.getBirthDate());
-//
-    //    newOwner.setDetailsOfUser(detailsOfUser);
-    //    newOwner.setBalance(0);
-    //    newOwner.setUser(user);
-//
-    //    detailsOfUserRepository.save(detailsOfUser);
-    //    userRepository.save(user);
-    //    ownerRepository.save(newOwner);
-    //}
-
     public void addOneOwner(RegisterRequest request){
         Owner newOwner = new Owner();
         User user = new User();
         DetailsOfUser detailsOfUser = new DetailsOfUser();
-
-        //newOwner.setBankAccount(owner.getBankAccount());
-        //newOwner.setRestaurants(owner.getRestaurants());
 
         Long userCount = userRepository.count();
 
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
-        // user.setUserDetailsId(ownerRepository.count() + 1);
         userRepository.save(user);
 
 
@@ -187,7 +154,7 @@ public class OwnerService {
 
         User user = userRepository.findUserByUserDetailsIdAndRole(owner.getId(),Role.OWNER);
 
-        if(restaurant.getPassword().equals(request.getRestaurantPassword())){
+        if(passwordEncoder.matches(request.getRestaurantPassword(),restaurant.getPassword())){
 
             for (int i = 0; i < shareRatioList.size(); i++) {
                 if(shareRatioList.get(i).getOwner() == owner){
@@ -205,17 +172,6 @@ public class OwnerService {
                 return "The process was completed successfully.";
             }
 
-            //for (int i = 0; i < restaurant.getOwners().size(); i++) {
-            //    if(restaurant.getOwners().get(i) == owner){
-            //        isAlreadyPartner = true;
-            //        return "The owner was already an partner of this restaurant.";
-            //    }
-            //}
-//
-            //if(!isAlreadyPartner){
-            //    restaurant.getOwners().add(owner);
-            //    return "The process was completed successfully.";
-            //}
         }else{
             throw new RestaurantIncorrectPasswordException("Incorrect password.");
         }

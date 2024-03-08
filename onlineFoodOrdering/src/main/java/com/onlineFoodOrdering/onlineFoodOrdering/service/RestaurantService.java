@@ -177,7 +177,7 @@ public class RestaurantService {
         if(passwordEncoder.matches(request.getPassword(),restaurant.getPassword())){
             return restaurant.getName() + " has " + restaurant.getNetProfit() + " net profit.";
         }else{
-            return "Incorrect password";
+            throw new RestaurantIncorrectPasswordException("Incorrect password.");
         }
     }
 

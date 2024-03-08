@@ -49,11 +49,6 @@ public class OrderService {
 
         Address address = addressRepository.findAddressByCustomerIdAndAddressTitle(id,request.getAddressTitle()).get();
 //
-        //if(!address.getCustomer().getId().equals(id)){
-        //    throw new AddressNotFoundException("You have not such an address.");
-        //}
-
-        //Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId()).orElseThrow(()->new RestaurantNotFoundException("There is no such a restaurant."));
         FoodDrink foodDrink = foodDrinkRepository.findById(request.getFoodDrinkId()).orElseThrow(()-> new FoodDrinkNotFoundException("There is no such a food or a drink."));
         Restaurant restaurant = foodDrink.getMenu().getRestaurant();
 
@@ -62,7 +57,6 @@ public class OrderService {
         if(card.getBalance() >= foodDrink.getSalesPrice()){
 
             Order order = new Order();
-            //Menu menu = menuRepository.findById(foodDrink.getMenu().getId()).orElseThrow(()-> new MenuNotFoundException("There is no such a menu."));
             order.setCustomer(findCustomer(id));
             order.setRestaurant(foodDrink.getMenu().getRestaurant());
             order.setMenu(foodDrink.getMenu());
@@ -94,16 +88,6 @@ public class OrderService {
     }
 
     public List<OrderResponse> getAllTheOrdersOfTheCustomer(Long id){
-        //Customer customer = findCustomer(id);
-        //List<Order> orders = orderRepository.findAll();
-//
-        //ArrayList<Order> customerOrders = new ArrayList<>();
-//
-        //for (int i = 0; i < orders.size(); i++) {
-        //    if(orders.get(i).getCustomer() == customer){
-        //       customerOrders.add(orders.get(i));
-        //    }
-        //}
 
         if(findCustomer(id) == null){
             throw new CustomerNotFoundException("There is no such a customer.");
@@ -111,22 +95,9 @@ public class OrderService {
 
         List<Order> ordersList = orderRepository.findOrdersByCustomerId(id);
         return ordersList.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());
-        //return customerOrders.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());
     }
 
     public List<OrderResponse> getAllTheOrdersOfTheRestaurant(Long restaurantId){
-        //Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
-        //List<Order> orders = orderRepository.findAll();
-//
-        //ArrayList<Order> restaurantOrders = new ArrayList<>();
-//
-        //for(int i = 0; i < orders.size(); i++) {
-        //    if(orders.get(i).getRestaurant() == restaurant){
-        //        restaurantOrders.add(orders.get(i));
-        //    }
-        //}
-//
-        //return restaurantOrders.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());
         Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(()-> new RestaurantNotFoundException("There is no such a restaurant."));
         List<Order> ordersList = orderRepository.findOrdersByRestaurantId(restaurantId);
         return ordersList.stream().map(order -> new OrderResponse(order)).collect(Collectors.toList());

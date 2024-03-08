@@ -59,62 +59,6 @@ public class ReviewService {
 
     }
 
-    //public String addAReview(Long customerId, ReviewCreateRequest review, Long restaurantId){
-    //    Customer customer = findCustomer(customerId);
-//
-    //    if(customer == null){
-    //        throw new CustomerNotFoundException("There is no such a customer.");
-    //    }
-//
-    //    Restaurant restaurant = restaurantRepository.findById(restaurantId).orElseThrow(()-> new RestaurantNotFoundException("There is no such a restaurant"));
-    //    //Review existReview = reviewRepository.findReviewByCustomerIdAndRestaurantId(customerId,restaurantId).orElse(null);
-//
-    //    // The purpose is that giving permission to a customer make comment a restaurant with a constraint
-    //    // which is that he/she only make a comment for the restaurants which were ordered something by him/her.
-    //    List<Order> ordersForTheCustomer =  orderRepository.findOrdersByCustomerId(customerId);
-//
-    //    boolean isOrderedBefore = false;
-//
-    //    for (int i = 0; i < ordersForTheCustomer.size(); i++) {
-    //        if(ordersForTheCustomer.get(i).getRestaurant() == restaurant){
-    //            isOrderedBefore = true;
-    //            break;
-    //        }
-    //    }
-//
-    //    //if(customer == null && restaurant == null){
-    //    //    return "Please enter an available id and restaurant.";
-    //    //}
-    //    //else if(customer == null){
-    //    //    return "There is no such a customer.";
-    //    //}
-    //    //else if(restaurant == null){
-    //    //    return "Please enter an available restaurant.";
-    //    //}
-//
-//
-//
-    //    if (isOrderedBefore) {
-    //        //if(existReview == null){
-    //                Review newReview = new Review();
-    //                newReview.setCustomer(customer);
-    //                newReview.setText(review.getText());
-    //                newReview.setTitle(review.getTitle());
-    //                newReview.setPoint(review.getPoint());
-    //                newReview.setRestaurant(restaurant);
-    //                reviewRepository.save(newReview);
-//
-    //                return "Your review is saved successfully.";
-    //        //}else{
-    //        //    return "You have already added a review for this restaurant.";
-    //        //}
-    //    }else{
-    //        return "You cannot make a review for a restaurant you did not order anything.";
-    //    }
-//
-//
-    //}
-
     public String addAReview(Long customerId, ReviewCreateRequest review, Long orderId){
         Order order = orderRepository.findById(orderId).orElseThrow(()-> new OrderNotFoundException("There is no such an order."));
         Customer customer = customerRepository.findById(customerId).orElseThrow(()-> new CustomerNotFoundException("There is no such a customer."));
@@ -146,7 +90,6 @@ public class ReviewService {
 
     public String updateReview(Long id, ReviewCreateRequest review,Long reviewId){
 
-        //Review oldReview = reviewRepository.findReviewByCustomerIdAndRestaurantId(id,restaurantId).orElse(null);
         Review oldReview = reviewRepository.findById(reviewId).orElseThrow(()-> new ReviewNotFoundException("You have not a review for this restaurant."));
         Customer customer = customerRepository.findById(id).orElseThrow(()-> new CustomerNotFoundException("There is no such an customer."));
 
@@ -170,9 +113,6 @@ public class ReviewService {
     }
 
     public String deleteReview(Long id,Long reviewId){
-        //Customer customer = findCustomer(id);
-
-        //Review review = reviewRepository.findReviewByCustomerIdAndRestaurantId(id,restaurantId).orElse(null);
 
         Review review = reviewRepository.findById(reviewId).orElseThrow(()-> new ReviewNotFoundException("There is no such a review."));
         Customer customer = customerRepository.findById(id).orElseThrow(()-> new CustomerNotFoundException("There is no such a customer."));

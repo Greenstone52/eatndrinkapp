@@ -11,6 +11,7 @@ import com.onlineFoodOrdering.onlineFoodOrdering.exception.UserNotFoundException
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.DetailsOfUserRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.ManagerAdminRepository;
 import com.onlineFoodOrdering.onlineFoodOrdering.repository.UserRepository;
+import com.onlineFoodOrdering.onlineFoodOrdering.request.CustomerDeleteRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.InvalidPasswordException;
 import com.onlineFoodOrdering.onlineFoodOrdering.request.UserUpdateRequest;
 import com.onlineFoodOrdering.onlineFoodOrdering.response.ManAdminResponse;
@@ -169,18 +170,5 @@ public class ManagerAdminService {
             managerAdminRepository.deleteById(managerAdmin.getId());
             return "The "+role+" whose email is "+email+" was removed from the system.";
         }
-
-
-        //if(user == null){
-        //    return "There is no such an user.";
-        //}else{
-        //
-        //
-        //    String email = user.getEmail();
-        //    managerAdminRepository.deleteById(managerAdmin.getId());
-        //    // userRepository.deleteById(user.getId());
-        //    // An error may be occur here as orphanal remove is not working well.
-        //    return "The user whose email is "+email+" was removed from the system.";
-        //}
     }
 }

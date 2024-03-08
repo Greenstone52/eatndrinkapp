@@ -24,36 +24,6 @@ public class FoodDrinkService {
     private RestaurantRepository restaurantRepository;
     private PasswordEncoder passwordEncoder;
 
-    //public List<FoodDrink> getAllTheFoodDrinksOfTheRestaurant(Long restaurantId){
-    //    List<FoodDrink> foodDrinkList = new ArrayList<>();
-    //    List<Menu> menuList = new ArrayList<>();
-//
-    //    Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
-//
-    //    // Finding the menus of the specified restaurant
-    //    for (Long i = 0L; i < menuRepository.count(); i++) {
-    //        if(menuRepository.findById(i).get().getRestaurant().equals(restaurant)){
-    //            menuList.add(menuRepository.findById(i).get());
-    //        }
-    //    }
-//
-    //    int count = 0;
-    //    // Finding the foodDrink of the menus
-    //    for (Long i = 0L; i < menuList.size(); i++) {
-    //        Menu menu = menuList.get(count);
-//
-    //        for (Long j = 0L; j < foodDrinkRepository.count(); j++) {
-    //            if(foodDrinkRepository.findById(j).get().getMenu().equals(menu)){
-    //                foodDrinkList.add(foodDrinkRepository.findById(j).get());
-    //            }
-    //        }
-//
-    //        count++;
-    //    }
-//
-    //    return foodDrinkList;
-    //}
-
     public List<FoodDrink> getOneMenusFoodDrink(Long menuId){
 
         Menu menu = menuRepository.findById(menuId).orElse(null);

@@ -63,6 +63,12 @@ public class OrderService {
             order.setFoodDrink(foodDrink);
             order.setCard(card);
 
+            // Customer statistics
+            Customer customer = findCustomer(id);
+            customer.setTotalNumberOfOrder(customer.getTotalNumberOfOrder()+1);
+            customer.setTotalSpendMoney(customer.getTotalSpendMoney() + foodDrink.getSalesPrice());
+            customerRepository.save(customer);
+
             order.setAddress(address);
             orderRepository.save(order);
             // Money is added to the bank account of the restaurant
@@ -136,6 +142,11 @@ public class OrderService {
 
                 orderRepository.deleteById(orderId);
 
+                // Customer statistics
+                customer.setTotalNumberOfOrder(customer.getTotalNumberOfOrder()-1);
+                customer.setTotalSpendMoney(customer.getTotalSpendMoney() - order.getFoodDrink().getSalesPrice());
+                customerRepository.save(customer);
+
                 return "Your order was deleted successfully.";
             }else{
                 return "It is too late to delete the order. 10 minutes lasted.";
@@ -151,6 +162,7 @@ public class OrderService {
     public String updateTheOrder(Long id, Long orderId, OrderUpdateRequest request){
 
         LocalDateTime currentDate = LocalDateTime.now();
+        Customer customer = findCustomer(id);
 
         Order order = orderRepository.findById(orderId).orElseThrow(()-> new OrderNotFoundException("There is no such an order"));
 
@@ -171,6 +183,7 @@ public class OrderService {
                 // Old Order's profit get back from the accounts.
                 order.getRestaurant().setNetEndorsement(order.getRestaurant().getNetEndorsement() - order.getFoodDrink().getSalesPrice());
                 order.getRestaurant().setNetProfit(order.getRestaurant().getNetProfit() - order.getFoodDrink().getProfit());
+                customer.setTotalSpendMoney(customer.getTotalSpendMoney()-order.getFoodDrink().getSalesPrice());
                 restaurantRepository.save(order.getRestaurant());
 
                 order.getCard().setBalance(order.getCard().getBalance() + order.getFoodDrink().getSalesPrice());
@@ -211,6 +224,10 @@ public class OrderService {
                 cardRepository.save(order.getCard());
                 orderRepository.save(order);
 
+
+                customerRepository.save(customer);
+
+                customer.setTotalSpendMoney(customer.getTotalSpendMoney() + order.getFoodDrink().getSalesPrice());
                 return "Your order was updated successfully.";
 
             }else{

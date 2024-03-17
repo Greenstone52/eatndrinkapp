@@ -15,11 +15,11 @@ OWNERS can do these
 - adding new restaurant.
 - seeing restaurants profit and income. 
 
-MANAGER can do these
+MANAGERS can do these
 - seeing top n customers which they orders something most.
 - seeing the all the owners of the restaurants
 
-ADMIN can do these
+ADMINS can do these
 - seeing top 5 owners which they have the most income.
 
 The software technologies used here

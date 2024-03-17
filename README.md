@@ -17,10 +17,15 @@ OWNERS can do these
 
 MANAGERS can do these
 - seeing top n customers which they orders something most.
-- seeing the all the owners of the restaurants
+- seeing the all the owners of the restaurants.
 
 ADMINS can do these
 - seeing top 5 owners which they have the most income.
+
+Also, all the users can do these properties
+- seeing the all the products of the restaurants. 
+- seeing the information about the restaurants.
+- seeing the all the reviews about the restaurants.
 
 The software technologies used here
 - Java SE 20

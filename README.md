@@ -4,6 +4,7 @@ This is a rest api was developed for food and beverages ordering for customers.
 In this backend project, there are properties users can.
 
 There are 4 roles which are ADMIN, MANAGER, CUSTOMER and OWNER.
+
 CUSTOMERS can do these
 - setting an order.
 - updating/ deleting the order unless 10 minutes lasted from the order create time.
